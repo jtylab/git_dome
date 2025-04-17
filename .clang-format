@@ -1,0 +1,46 @@
+---
+Language: Cpp
+BasedOnStyle: Google
+AllowShortFunctionsOnASingleLine: Empty
+AllowShortIfStatementsOnASingleLine: AllIfsAndElse
+AlignAfterOpenBracket: Align
+AlignConsecutiveMacros: AcrossComments
+Cpp11BracedListStyle: true
+ColumnLimit: 0
+# ConstructorInitializerIndentWidth: 4
+# ContinuationIndentWidth: 4
+BraceWrapping:
+  AfterCaseLabel: false
+  AfterClass: false
+  AfterControlStatement: Never
+  AfterEnum: false
+  AfterFunction: false
+  AfterNamespace: false
+  AfterObjCDeclaration: false
+  AfterStruct: false
+  AfterUnion: false
+  AfterExternBlock: false
+  BeforeCatch: false
+  BeforeElse: false
+  BeforeLambdaBody: false
+  BeforeWhile: false
+  IndentBraces: false
+  SplitEmptyFunction: true
+  SplitEmptyRecord: true
+  SplitEmptyNamespace: true
+IncludeBlocks: Preserve
+IndentWidth: 4
+IndentAccessModifiers: true
+InsertBraces: false
+IndentCaseLabels: true
+IndentCaseBlocks: false
+SeparateDefinitionBlocks: Leave
+SpaceBeforeParens: ControlStatements
+SpacesBeforeTrailingComments: 2
+SpacesInLineCommentPrefix:
+  Minimum: 1
+  Maximum: -1
+Standard: Auto
+TabWidth: 4
+UseTab: ForContinuationAndIndentation
+...
