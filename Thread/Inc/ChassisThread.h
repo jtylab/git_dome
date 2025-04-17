@@ -67,6 +67,7 @@ extern "C" {
 #define LD_Angle   -3.0f/4.0f*PI
 #define RD_Angle   -1.0f/4.0f*PI
 #define Chassis_R   1.0f                        //???????????????????  底盘中心到电机的半径(需要测量)
+#define Motort_R    1.0f                        //???????????????????  电机中心到轮子的半径(需要测量)
 
 #ifdef __cplusplus
 
@@ -85,6 +86,9 @@ class Chassis_t {
 		RM_Motor_t* Prv_Motor[4];
 		PID_t Prv_PID_Motor_Speed[4];
 		float Prv_Motor_Speed_Target[4];
+		float Chassis_Currentspeed_X;
+		float Chassis_Currentspeed_Y;
+		float Chassis_Currentspeed_Z;
 
 		struct {
 			float X;
@@ -114,10 +118,10 @@ class Chassis_t {
 		float Prv_TransitionLPFq;  // 取值 0.0~1.0
 
 	private:
-		void Decode(float* Speed_X, float* Speed_Y, float* Speed_Z);
 		float SpinSpeedGenerate(void);
-		void CalcSpeedWithRelativeAngle(void);
-		void CalcMotorSpeed(void);
+		void  CalcSpeedWithRelativeAngle(void);
+		void  FK_ChassisSpeed(void);
+		void  IK_MotorSpeed(void);
 
 	public:
 		Chassis_t() {
@@ -127,6 +131,9 @@ class Chassis_t {
 			Prv_Speed.X = 0;
 			Prv_Speed.Y = 0;
 			Prv_Speed.Z = 0;
+			Chassis_Currentspeed_X = 0;
+		    Chassis_Currentspeed_Y = 0;
+		    Chassis_Currentspeed_Z = 0;
 			Prv_Spin_Speed = 0;
 			Prv_RelativeAngle = 0;
 			Prv_Flag_PowerLimit = 0;
@@ -139,7 +146,8 @@ class Chassis_t {
 		void SetTrendAngle(float Trend_Angle);
 		void SetPowerLimitFlag(bool doPowerLimit);
 		void SetPowerLimitTarget(float Watt);
-		void SetSpeed(float Speed_X, float Speed_Y, float Speed_Z);
+		void SetChassisSpeed(float Speed_X, float Speed_Y, float Speed_Z);
+		void GetChassisSpeed(float* Chassis_X, float* Chassis_Y, float* Chassis_Z);
 		void Generate(void);
 };
 

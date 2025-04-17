@@ -84,37 +84,52 @@ void Chassis_t::SetPowerLimitTarget(float Watt) {
  * 
  * @brief m/s
  */
-void Chassis_t::SetSpeed(float Speed_X, float Speed_Y, float Speed_Z) {
+void Chassis_t::SetChassisSpeed(float Speed_X, float Speed_Y, float Speed_Z) {
 	Prv_TargetSpeed.X = Speed_X;
 	Prv_TargetSpeed.Y = Speed_Y;
 	Prv_TargetSpeed.Z = Speed_Z;
 }
 
 /**
- * @brief 运动学逆解算
+ * @brief Get物理中心的当前速度X,Y,Z(正方向分别为,上,左,逆时针)
  * 
- * @brief 从中心速度计算每个电机角速度
+ * @param Chassis_X 
+ * @param Chassis_Y 
+ * @param Chassis_Z 
+ * 
  * @brief m/s
  */
-void Chassis_t::CalcMotorSpeed(void) {
+void Chassis_t::GetChassisSpeed(float* Chassis_X, float* Chassis_Y, float* Chassis_Z){
+	*Chassis_X = Chassis_Currentspeed_X;
+	*Chassis_Y = Chassis_Currentspeed_Y;
+	*Chassis_Z = Chassis_Currentspeed_Z;
+}
+
+/**
+ * @brief 运动学逆解算
+ * 
+ * @brief 从物理中心速度计算每个电机角速度
+ * @brief m/s
+ */
+void Chassis_t::IK_MotorSpeed(void) {
 	// clang-format off
-	Prv_Motor_Speed_Target[LU] = cos(LU_Angle)*Prv_Speed.X + sin(LU_Angle)*Prv_Speed.Y + Chassis_R*Prv_Speed.Z;
-	Prv_Motor_Speed_Target[RU] = cos(RU_Angle)*Prv_Speed.X + sin(RU_Angle)*Prv_Speed.Y + Chassis_R*Prv_Speed.Z;
-	Prv_Motor_Speed_Target[LD] = cos(LD_Angle)*Prv_Speed.X + sin(LD_Angle)*Prv_Speed.Y + Chassis_R*Prv_Speed.Z;
-	Prv_Motor_Speed_Target[RD] = cos(RD_Angle)*Prv_Speed.X + sin(RD_Angle)+Prv_Speed.Y + Chassis_R*Prv_Speed.Z;
+	Prv_Motor_Speed_Target[LU] = (cos(LU_Angle)*Prv_Speed.X + sin(LU_Angle)*Prv_Speed.Y + Chassis_R*Prv_Speed.Z) / Motort_R;
+	Prv_Motor_Speed_Target[RU] = (cos(RU_Angle)*Prv_Speed.X + sin(RU_Angle)*Prv_Speed.Y + Chassis_R*Prv_Speed.Z) / Motort_R;
+	Prv_Motor_Speed_Target[LD] = (cos(LD_Angle)*Prv_Speed.X + sin(LD_Angle)*Prv_Speed.Y + Chassis_R*Prv_Speed.Z) / Motort_R;
+	Prv_Motor_Speed_Target[RD] = (cos(RD_Angle)*Prv_Speed.X + sin(RD_Angle)*Prv_Speed.Y + Chassis_R*Prv_Speed.Z) / Motort_R;
 	// clang-format on
 }
 
 /**
- * @brief 运动学正解算                          ？？？？？？？？？？？？？？？？？？？？？需要修改
- * @param Move_X
- * @param Move_Y
- * @param Move_Z
+ * @brief 运动学正解算                         
+ * 
+ * @brief 计算出当前物理中心底盘的运动速度
+ * @brief m/s
  */
-void Chassis_t::Decode(float* Move_X, float* Move_Y, float* Move_Z) {
-	*Move_X = 1.0f / 4.0f * (Prv_Motor[LU]->GetSpeed() + Prv_Motor[RU]->GetSpeed() - Prv_Motor[LD]->GetSpeed() - Prv_Motor[RD]->GetSpeed());
-	*Move_Y = 1.0f / 4.0f * (Prv_Motor[LU]->GetSpeed() - Prv_Motor[RU]->GetSpeed() + Prv_Motor[LD]->GetSpeed() - Prv_Motor[RD]->GetSpeed());
-	*Move_Z = 1.0f / 4.0f * (Prv_Motor[LU]->GetSpeed() + Prv_Motor[RU]->GetSpeed() + Prv_Motor[LD]->GetSpeed() + Prv_Motor[RD]->GetSpeed());
+void Chassis_t::FK_ChassisSpeed(void){
+	Chassis_Currentspeed_X = 1.0f / 2.0f * (cos(LU_Angle)*Prv_Motor[LU]->GetSpeed() + cos(RU_Angle)*Prv_Motor[RU]->GetSpeed() + cos(LD_Angle)*Prv_Motor[LD]->GetSpeed() + cos(RD_Angle)*Prv_Motor[RD]->GetSpeed());
+	Chassis_Currentspeed_Y = 1.0f / 2.0f * (sin(LU_Angle)*Prv_Motor[LU]->GetSpeed() + sin(RU_Angle)*Prv_Motor[RU]->GetSpeed() + sin(LD_Angle)*Prv_Motor[LD]->GetSpeed() + sin(RD_Angle)*Prv_Motor[RD]->GetSpeed());
+	Chassis_Currentspeed_Z = 1.0f / 4.0f * (1.0f / Chassis_R * (Prv_Motor[LU]->GetSpeed() + Prv_Motor[RU]->GetSpeed() + Prv_Motor[LD]->GetSpeed() + Prv_Motor[RD]->GetSpeed()));
 }
 
 /**
@@ -181,7 +196,7 @@ void Chassis_t::Generate(void) {
 			Prv_Speed.X = Prv_TargetSpeed.X;
 			Prv_Speed.Y = Prv_TargetSpeed.Y;
 			Prv_Speed.Z = Prv_TargetSpeed.Z;
-			CalcMotorSpeed();
+			IK_MotorSpeed();
 			Prv_Behaviour_Last = CHASSIS_NO_FOLLOW;
 			break;
 		case CHASSIS_FOLLOW_GIMBAL:  // 底盘跟随云台
@@ -197,13 +212,13 @@ void Chassis_t::Generate(void) {
 				Prv_Flag_Transit = 0;
 			}
 			Prv_Speed.Z = -Prv_PID_Follow.GenerateRing(Prv_RelativeAngle, 0, 2.0f * PI);  // 跟随
-			CalcMotorSpeed();
+			IK_MotorSpeed();
 			Prv_Behaviour_Last = CHASSIS_FOLLOW_GIMBAL;
 			break;
 		case CHASSIS_SPIN:  // 小陀螺运动
 			CalcSpeedWithRelativeAngle();
 			Prv_Speed.Z = -SpinSpeedGenerate();  // 按该函数更新转速
-			CalcMotorSpeed();
+			IK_MotorSpeed();
 			Prv_Behaviour_Last = CHASSIS_SPIN;
 			break;
 	}
