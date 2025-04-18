@@ -54,6 +54,7 @@
 #include "MainThread.h"
 #include "DebuggerThread.h"
 #include "ChassisThread.h"
+#include "DR16ControlThread.h"
 
 
 /* USER CODE END Includes */
@@ -155,10 +156,15 @@ int main(void)
 
   // PM_Init();
 
+DR16ControlThread_Init();
+  
 MainThread_Init();
 InteractionThread_Init();
   // DebuggerThread_Init();
   ChassisThread_Init();
+
+
+
   //  GimbalThread_Init();
   //  BoosterThread_Init();
 //APP_ChassisBridge_Init();

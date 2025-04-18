@@ -17,7 +17,7 @@
  * 
  * @param KF 
  */
-void FFC_t::Set_Kf(float KF){
+void FFC_Target_t::Set_Kf(float KF){
     Kf = KF;
 }
 
@@ -27,7 +27,7 @@ void FFC_t::Set_Kf(float KF){
  * 
  * @return float 
  */
-void FFC_t::Generate(float Target){
+void FFC_Target_t::Generate(float Target){
     Target_t1 = Target;
     Target_ROC = Target_t0 - Target_t1;
     Target_t0 = Target_t1;
@@ -38,7 +38,7 @@ void FFC_t::Generate(float Target){
  * 
  * @return float 
  */
-float FFC_t::GetTatget_ROC(void){
+float FFC_Target_t::GetTatget_ROC(void){
     return Target_ROC;
 }
 
@@ -47,6 +47,6 @@ float FFC_t::GetTatget_ROC(void){
  * 
  * @return float 
  */
-float FFC_t::GetKf(void){
+float FFC_Target_t::GetKf(void){
     return Kf;
 }

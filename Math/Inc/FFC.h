@@ -20,7 +20,7 @@
 
  #ifdef __cplusplus
 
-class FFC_t{
+class FFC_Target_t{
     private:
         float Kf;
         float Target_t0;
@@ -28,7 +28,7 @@ class FFC_t{
         float Target_ROC;
 
     public:
-        FFC_t(){
+    FFC_Target_t(){
             Target_t0 = 0;
             Target_t1 = 0;
             Target_ROC = 0;

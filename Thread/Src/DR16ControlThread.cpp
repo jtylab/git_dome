@@ -17,7 +17,9 @@
  * 
  */
  void DR16ControlTask(void){
-    ulTaskNotifyTake(pdTRUE,portMAX_DELAY);
+
+//   ulTaskNotifyTake(pdTRUE,portMAX_DELAY);
+    
 
 
     DR16_t    *DR16 = DR16_Point();
@@ -25,6 +27,8 @@
 
     
     while(true){
+		
+
         switch(DR16->SW1){  // 底盘 云台
 
 
@@ -93,8 +97,6 @@
 		// 		break;
 		}
 
-
-
         osDelay(4);
     }
  }
@@ -103,14 +105,14 @@
 
 
 void DR16ControlThread_Init(void){
-    BaseType_t xRutern = pdPASS;
+    // BaseType_t xRutern = pdPASS;
 
-    xRutern = xTaskCreate((TaskFunction_t)DR16ControlTask,"DR16ControlTask",2048,NULL,24,&DR16ControlThread_Handle);
+    xTaskCreate((TaskFunction_t)DR16ControlTask,"DR16ControlTask",2048,NULL,25,&DR16ControlThread_Handle);
 
-    if(xRutern == pdPASS){
-        vTaskStartScheduler();
-    }
-    else{
-       while(true);
-    }
+    // if(xRutern == pdPASS){
+    //     vTaskStartScheduler();
+    // }
+    // else{
+    //    while(true);
+    // }
 }

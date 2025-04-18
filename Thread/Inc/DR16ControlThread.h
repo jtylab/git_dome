@@ -23,7 +23,7 @@
  #include "ChassisThread.h"
 
 
- #define Scaler_Chassis 4000.0f 
+ #define Scaler_Chassis 1000.0f 
 
 
 
@@ -35,7 +35,7 @@
 
 
 static TaskHandle_t DR16ControlThread_Handle = NULL;
-
+void DR16ControlThread_Init();
 
 
  #ifdef __cplusplus

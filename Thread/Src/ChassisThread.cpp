@@ -29,15 +29,15 @@ void Chassis_t::Init(RM_Motor_t* Motor_LU, RM_Motor_t* Motor_RU, RM_Motor_t* Mot
 
 	Prv_MaxSpinSpeed = 3000.0f;
 
-	// Prv_PID_Motor_Speed[0].Init(13, 0 ,0, 4, 6000, 16383);
-	// Prv_PID_Motor_Speed[1].Init(13, 0, 0, 4, 6000, 16383);
-	// Prv_PID_Motor_Speed[2].Init(13, 0, 0, 4, 6000, 16383);
-	// Prv_PID_Motor_Speed[3].Init(13, 0, 0, 4, 6000, 16383);
+	Prv_PID_Motor_Speed[0].Init(13, 0 ,0, 2, 4, 6000, 16383);
+	Prv_PID_Motor_Speed[1].Init(13, 0, 0, 2, 4, 6000, 16383);
+	Prv_PID_Motor_Speed[2].Init(13, 0, 0, 2, 4, 6000, 16383);
+	Prv_PID_Motor_Speed[3].Init(13, 0, 0, 2, 4, 6000, 16383);
 
-	Prv_PID_Motor_Speed[0].Init(1.52000600800904,2.68508859420655,0.0101460207730336,0,4,6000, 16383);
-	Prv_PID_Motor_Speed[1].Init(1.52000600800904,2.68508859420655,0.0101460207730336,0,4,6000, 16383);
-	Prv_PID_Motor_Speed[2].Init(1.52000600800904,2.68508859420655,0.0101460207730336,0,4,6000, 16383);
-	Prv_PID_Motor_Speed[3].Init(1.52000600800904,2.68508859420655,0.0101460207730336,0,4,6000, 16383);
+	// Prv_PID_Motor_Speed[0].Init(1.52000600800904,2.68508859420655,0.0101460207730336,0,4,6000, 16383);
+	// Prv_PID_Motor_Speed[1].Init(1.52000600800904,2.68508859420655,0.0101460207730336,0,4,6000, 16383);
+	// Prv_PID_Motor_Speed[2].Init(1.52000600800904,2.68508859420655,0.0101460207730336,0,4,6000, 16383);
+	// Prv_PID_Motor_Speed[3].Init(1.52000600800904,2.68508859420655,0.0101460207730336,0,4,6000, 16383);
 
 
 	Prv_PID_Follow.Init(-1000, 0, 0,0, 4 ,3000, 6000);
@@ -91,7 +91,7 @@ void Chassis_t::SetChassisSpeed(float Speed_X, float Speed_Y, float Speed_Z) {
 }
 
 /**
- * @brief Get物理中心的当前速度X,Y,Z(正方向分别为,上,左,逆时针)
+ * @brief Get物理中心底盘的当前速度X,Y,Z(正方向分别为,上,左,逆时针)
  * 
  * @param Chassis_X 
  * @param Chassis_Y 
@@ -131,6 +131,7 @@ void Chassis_t::FK_ChassisSpeed(void){
 	Chassis_Currentspeed_Y = 1.0f / 2.0f * (sin(LU_Angle)*Prv_Motor[LU]->GetSpeed() + sin(RU_Angle)*Prv_Motor[RU]->GetSpeed() + sin(LD_Angle)*Prv_Motor[LD]->GetSpeed() + sin(RD_Angle)*Prv_Motor[RD]->GetSpeed());
 	Chassis_Currentspeed_Z = 1.0f / 4.0f * (1.0f / Chassis_R * (Prv_Motor[LU]->GetSpeed() + Prv_Motor[RU]->GetSpeed() + Prv_Motor[LD]->GetSpeed() + Prv_Motor[RD]->GetSpeed()));
 }
+
 
 /**
  * @brief 更新小陀螺转速

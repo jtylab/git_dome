@@ -44,7 +44,7 @@ class PID_t {
 
 		float Private_Output;  // 输出
 
-		FFC_t Feedforward;
+		FFC_Target_t TargetFeedforward;
 
 	public:
 		PID_t() {

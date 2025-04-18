@@ -57,7 +57,7 @@ void Set_Controlmode(Control_mode Mode){
  */
 void MainTask(void *argument) {
     BSP_IMU_Start(-0.0041016,0.00223481,-0.000858274);
-	Set_Controlmode(DR16_CONTROL);
+	
 
     
 // 	Booster_t *Booster = BoosterPoint();
@@ -72,10 +72,16 @@ void MainTask(void *argument) {
     
 
 	osDelay(3500);
+	// while(DR16ControlThread_Handle != NULL){
+	// 	xTaskNotifyGive(DR16ControlThread_Handle);
+	// }
+	
+	// Set_Controlmode(DR16_CONTROL);
 	
 	while (1) {
 
 		
+		// xTaskNotify(DR16ControlThread_Handle,0,eNoAction);
 		 osDelay(4);
 	}
 }

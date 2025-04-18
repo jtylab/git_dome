@@ -28,7 +28,7 @@ void PID_t::Init(float Kp, float Ki, float Kd, float Kf,float T, float Limit_Int
 	Private_P = Kp;
 	Private_I = Ki;
 	Private_D = Kd;
-	Feedforward.Set_Kf(Kf);
+	TargetFeedforward.Set_Kf(Kf);
 	Private_T = T;
 	Private_LPF_q = 2.0f * pi * (Private_T / 1000.0f) * 5.0f;  // 一阶低通的截止频率为 30Hz
 	Private_Limit_Integral = Limit_Integral;
@@ -45,9 +45,9 @@ void PID_t::Init(float Kp, float Ki, float Kd, float Kf,float T, float Limit_Int
  */
 float PID_t::Generate(float Input, float Target) {
 
-	Feedforward.Generate(Target);   //更新Target_ROC
-	float Target_ROC = Feedforward.GetTatget_ROC();
-	float FFC_Kf = Feedforward.GetKf();
+	TargetFeedforward.Generate(Target);   //更新Target_ROC
+	float Target_ROC = TargetFeedforward.GetTatget_ROC();
+	float FFC_Kf = TargetFeedforward.GetKf();
 	float Error;   // 误差
 	float Differ;  // 微分项
 	float Deadzone = 0.0f;
