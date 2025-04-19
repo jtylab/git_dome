@@ -12,7 +12,7 @@
 #define __FFT_H
 
 #include "main.h"
-
+#include "ChassisThread.h"
 #include "Complex.h"
 
 #ifdef __cplusplus

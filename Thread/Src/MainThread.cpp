@@ -17,39 +17,6 @@ RM_Motor_t ChassisMotor_2(1, RM_Motor_t::M3508, 2);
 RM_Motor_t ChassisMotor_3(1, RM_Motor_t::M3508, 3);
 RM_Motor_t ChassisMotor_4(1, RM_Motor_t::M3508, 4);
 
-/**
- * @brief 开启DR16遥控器控制函数
- * 
- */
-void DR16Control_Start(void){
-	xTaskNotifyGive(DR16ControlThread_Handle);
-}
-
-/**
- * @brief 开启自动控制
- * 
- */
-void Automaticcontrol_Start(void){
-
-}
-
-/**
- * @brief 控制方式设置函数
- * 
- * @param Mode 
- */
-void Set_Controlmode(Control_mode Mode){
-	switch (Mode)
-	{
-	case DR16_CONTROL:
-        DR16Control_Start();
-		break;
-	
-	case AUTOMATIC_CONTROL:
-        Automaticcontrol_Start();
-	    break;
-	}
-}
 
 
 /**
@@ -57,7 +24,6 @@ void Set_Controlmode(Control_mode Mode){
  */
 void MainTask(void *argument) {
     BSP_IMU_Start(-0.0041016,0.00223481,-0.000858274);
-	
 
     
 // 	Booster_t *Booster = BoosterPoint();
@@ -72,16 +38,12 @@ void MainTask(void *argument) {
     
 
 	osDelay(3500);
-	// while(DR16ControlThread_Handle != NULL){
-	// 	xTaskNotifyGive(DR16ControlThread_Handle);
-	// }
 	
-	// Set_Controlmode(DR16_CONTROL);
+	
 	
 	while (1) {
 
-		
-		// xTaskNotify(DR16ControlThread_Handle,0,eNoAction);
+	
 		 osDelay(4);
 	}
 }
