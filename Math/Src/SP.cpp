@@ -15,7 +15,7 @@
 
 
 /**
- * @brief 初始化
+ * @brief 初始化设置斜坡的坡度
  * 
  * @param Increase_Value        //绝对增量值（加速度）
  * @param Decrease_Value        //绝对减量值（减速度）

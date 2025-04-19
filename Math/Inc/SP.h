@@ -23,11 +23,11 @@ enum Enum_Slope_First{
 
 class SP_t{
     private:
-        float Increase_Value = 0.0f;  //绝对增量值（加速度）
-        float Decrease_Value = 0.0f;  //绝对减量值（减速度）
+        float Increase_Value;  //绝对增量值（加速度）
+        float Decrease_Value;  //绝对减量值（减速度）
 
-        float Now_Planning = 0.0f;    // 当前规划值       
-        float Output = 0.0f;
+        float Now_Planning;    // 当前规划值       
+        float Output;
 
     public:
         void Init(float Increase_Value, float Decrease_Value);
@@ -57,7 +57,7 @@ class SP_t{
 
  #ifdef __cplusplus
 
-
+#endif
 
 
 

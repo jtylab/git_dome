@@ -214,6 +214,9 @@
                       },
                       {
                         "path": "Thread/Src/DR16ControlThread.cpp"
+                      },
+                      {
+                        "path": "Thread/Src/GimbalThread.cpp"
                       }
                     ],
                     "folders": []
