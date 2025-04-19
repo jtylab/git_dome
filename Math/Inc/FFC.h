@@ -14,6 +14,7 @@
 
  #include "main.h"
  #include "math.h"
+ #include "Basic.h"
  
  #ifdef __cplusplus
  extern "C" {
@@ -43,10 +44,10 @@
 
     public:
     FFC_Target_t(){
-            Target_t0 = 0;
-            Target_t1 = 0;
-            Target_ROC = 0;
-            Kf = 0;
+            Target_t0 = 0.0f;
+            Target_t1 = 0.0f;
+            Target_ROC = 0.0f;
+            Kf = 0.0f;
         }
         void Set_Kf(float Kf);
         void Generate(float Target);
@@ -83,7 +84,7 @@ class FFC_Resistance_t{
             Feedforward_limiting = 0;
             Resistance_Value = 0;
         }
-        
+
         void Init(float a0, float a1, float a2, float a3, float Firstordercontinuous_limiting, float Feedforward_limiting);
         void Generate(float Z);
         float GetResistance(void);
@@ -100,9 +101,10 @@ class FFC_Gravity_t{
         float GravityCompensation[4];    //电机在斜坡上的重力补偿
         float Slope_Pitch;
 
+        float Feedforward_limiting;
 
     public:
-        void Init(float L0, float L1, float L2, float L3, float Slope_Pitch);
+        void Init(float L0, float L1, float L2, float L3, float Slope_Pitch,float Feedforward_limiting);
         void Generate(void);
         float* GetCompensation(void);
 };

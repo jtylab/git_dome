@@ -51,15 +51,15 @@ void FFT(Complex_t *x, uint32_t N, bool isIFFT) {
 		if (i < rev[i]) swap(&x[i], &x[rev[i]]);  // 进行 位逆序置换(BitReverse)
 	free(rev);
 	for (i = 1; i <= pow; ++i) {
-		uint32_t m = 1 << i;
-		Complex_t wn = Complex_t(cos(2.0f * __PI / m), s * sin(2.0f * __PI / m));  // 单位根 ω_n
-		for (uint32_t k = 0; k < size; k += m) {
+		uint32_t m1 = 1 << i;
+		Complex_t wn = Complex_t(cos(2.0f * __PI / m1), s * sin(2.0f * __PI / m1));  // 单位根 ω_n
+		for (uint32_t k = 0; k < size; k += m1) {
 			Complex_t w = Complex_t(1.0f, 0.0f);
-			for (uint32_t j = 0; j < m / 2; ++j) {
-				Complex_t t = w * x[k + j + m / 2];  // clang-format off
+			for (uint32_t j = 0; j < m1 / 2; ++j) {
+				Complex_t t = w * x[k + j + m1 / 2];  // clang-format off
 				Complex_t u =     x[k + j];
 				x[k + j]         = u + t;  // clang-format on
-				x[k + j + m / 2] = u - t;
+				x[k + j + m1 / 2] = u - t;
 				w = w * wn;
 			}
 		}

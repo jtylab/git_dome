@@ -7,6 +7,9 @@
  * 
  * @copyright Copyright (c) 2025
  * 
+ * 
+ * @remark 展望：
+ *              重力补偿只做到了完全上斜坡时的静态补偿可突破为在开始上下坡的过程中重力补偿能根据倾角实时变化
  */
 
 #include "FFC.h"
@@ -59,12 +62,12 @@ float FFC_Target_t::GetKf(void){
 /**
  * @brief 初始化阻力前馈系数
  * 
- * @param a0 
- * @param a1 
- * @param a2 
- * @param a3 
- * @param Firstordercontinuous_limiting 
- * @param Feedforward_limiting 
+ * @param a0         //一阶连续函数系数a0
+ * @param a1         //拟合二阶函数系数a1
+ * @param a2         //拟合二阶函数系数a2
+ * @param a3         //拟合二阶函数系数a3
+ * @param Firstordercontinuous_limiting     //一阶连续自变量限幅
+ * @param Feedforward_limiting              //前馈限幅
  */
 void FFC_Resistance_t::Init(float a0, float a1, float a2, float a3, float Firstordercontinuous_limiting, float Feedforward_limiting){
     FFC_Resistance_t::a0 = a0;
@@ -109,14 +112,17 @@ float FFC_Resistance_t::GetResistance(void){
  * @param LD_L2         //LD轮子的力距
  * @param RD_L3         //RD轮子的力距
  * @param Slope_Pitch   //斜坡的Pitch倾角{-pi,pi}
+ * @param Feedforward_limiting      //前馈限幅
  */
-void FFC_Gravity_t::Init(float LU_L0, float RU_L1, float LD_L2, float RD_L3, float Slope_Pitch){
+void FFC_Gravity_t::Init(float LU_L0, float RU_L1, float LD_L2, float RD_L3, float Slope_Pitch, float Feedforward_limiting){
     FFC_Gravity_t::ForceDistance[LU] = LU_L0;
     FFC_Gravity_t::ForceDistance[RU] = RU_L1;
     FFC_Gravity_t::ForceDistance[LD] = LD_L2;
     FFC_Gravity_t::ForceDistance[RD] = RD_L3;
 
     FFC_Gravity_t::Slope_Pitch = Slope_Pitch;
+
+    FFC_Gravity_t::Feedforward_limiting = Feedforward_limiting;
 
     FFC_Gravity_t::Generate();
 }
@@ -130,8 +136,8 @@ void FFC_Gravity_t::Generate(void){
     //依据公式:
     //         N0*L0 = N1*L1 = N2*L2 = N3*L3
     //         N0 + N1 + N2 + N3 = mgcos(Slope_pitch)
-    float Sum_inverse_L = 1.0/ForceDistance[LU] + 1.0/ForceDistance[RU] + 1.0/ForceDistance[LD] + 1.0/ForceDistance[RD];
-    float K = m*g * cos(Slope_Pitch) / Sum_inverse_L;
+    float Sum_inverse_L = 1.0f/ForceDistance[LU] + 1.0f/ForceDistance[RU] + 1.0f/ForceDistance[LD] + 1.0f/ForceDistance[RD];
+    double K = m*g * cos(Slope_Pitch) / Sum_inverse_L;
 
     float Supportiveness[4];           //每个电机的支持力N
     Supportiveness[LU] = K / ForceDistance[LU];
@@ -146,10 +152,10 @@ void FFC_Gravity_t::Generate(void){
     WeightFactor[LD] = Supportiveness[LD] / Sum_resultant_F;
     WeightFactor[RD] = Supportiveness[RD] / Sum_resultant_F;
 
-    GravityCompensation[LU] = m*g * cos(Slope_Pitch) * WeightFactor[LU];
-    GravityCompensation[RU] = m*g * cos(Slope_Pitch) * WeightFactor[RU];
-    GravityCompensation[LD] = m*g * cos(Slope_Pitch) * WeightFactor[LD];
-    GravityCompensation[RD] = m*g * cos(Slope_Pitch) * WeightFactor[RD];
+    GravityCompensation[LU] = LimitBoth(m*g * cos(Slope_Pitch) * WeightFactor[LU],Feedforward_limiting,-Feedforward_limiting);
+    GravityCompensation[RU] = LimitBoth(m*g * cos(Slope_Pitch) * WeightFactor[RU],Feedforward_limiting,-Feedforward_limiting);
+    GravityCompensation[LD] = LimitBoth(m*g * cos(Slope_Pitch) * WeightFactor[LD],Feedforward_limiting,-Feedforward_limiting);
+    GravityCompensation[RD] = LimitBoth(m*g * cos(Slope_Pitch) * WeightFactor[RD],Feedforward_limiting,-Feedforward_limiting);
 }
 
 /**
