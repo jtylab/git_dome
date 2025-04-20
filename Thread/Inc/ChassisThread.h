@@ -68,6 +68,9 @@ extern "C" {
 #define RD_Angle   -3.0f/4.0f*PI
 #define Chassis_R   0.25f                        //???????????????????  底盘中心到电机的半径(需要测量)
 #define Motort_R    0.075f                        //???????????????????  电机中心到轮子的半径(需要测量)
+#define Acceldeviation_X  -0.01f                //静止时的加速度偏差
+#define Acceldeviation_Y  0.6f
+#define Acceldeviation_Z  -9.7f
 
 #ifdef __cplusplus
 
@@ -101,23 +104,7 @@ class Chassis_t {
 			float Z;
 		} Gimbal_Target_Speed;             // 云台坐标系目标速度向量
 
-		struct 
-		{
-			float Yaw_Angle;
-			float Pitch_Angle;                //360
-			float X_Acceleration;          //rad/s
-			float Y_Acceleration;
-			float Z_Acceleration;
-		} Chassis_Presently_Attitude;         //底盘坐标系相对大地坐标系的姿态信息
-
-		struct 
-		{
-			float Yaw_Angle;
-			float Pitch_Angle;                //360
-			float X_Acceleration;           //rad/s
-			float Y_Acceleration;
-			float Z_Acceleration;
-		} Gimbal_Presently_Attitude;          //云台坐标系相对大地坐标系的姿态信息
+		
 		
 		
 		float Prv_Spin_Speed;  // 小陀螺转速
@@ -143,6 +130,24 @@ class Chassis_t {
 		void  IK_MotorSpeed(void);
 
 	public:
+        struct 
+		{
+			float Yaw_Angle;
+			float Pitch_Angle;                //360
+			float X_Acceleration;          //rad/s
+			float Y_Acceleration;
+			float Z_Acceleration;
+		} Chassis_Presently_Attitude;         //底盘坐标系相对大地坐标系的姿态信息
+
+		struct 
+		{
+			float Yaw_Angle;
+			float Pitch_Angle;                //360
+			float X_Acceleration;           //rad/s
+			float Y_Acceleration;
+			float Z_Acceleration;
+		} Gimbal_Presently_Attitude;          //云台坐标系相对大地坐标系的姿态信息
+
 		Chassis_t() {
 			Gimbal_Target_Speed.X = 0;
 			Gimbal_Target_Speed.Y = 0;
@@ -166,13 +171,12 @@ class Chassis_t {
 		void SetPowerLimitFlag(bool doPowerLimit);
 		void SetPowerLimitTarget(float Watt);
 		void SetChassisSpeed(float Speed_X, float Speed_Y, float Speed_Z);
-		void SetChassisAttitude(float Yaw_Angle, float Pitch_Angle, float X_Acceleration, float Y_Acceleration, float Z_Acceleration);
+		void UpdateChassisAttitude(float Yaw_Angle, float Pitch_Angle, float X_Acceleration, float Y_Acceleration, float Z_Acceleration);
 		void SetGimbalSpeed(float Speed_X, float Speed_Y, float Speed_Z);
 		void GetChassisSpeed(float* Chassis_X, float* Chassis_Y, float* Chassis_Z);
 		void Generate(void);
 };
-
-Chassis_t * ChassisPoint(void);
+static Chassis_t Chassis;
 
 #endif
 

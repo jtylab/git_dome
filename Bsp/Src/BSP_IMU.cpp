@@ -15,6 +15,9 @@
 #include "LPF.h"
 #include "PID.h"
 
+#include "ChassisThread.h"
+#include "IMU_CAN.h"
+
 #define SampleFreq	1000.0f			// sample frequency in Hz
 #define TwoKp	(2.0f * 0.5f)			// 2 * proportional gain
 #define TwoKi	(2.0f * 0.0f)			// 2 * integral gain
@@ -332,6 +335,9 @@ void IMU_Task(void *argument){
 			IMU.Angle_X = Angle[0];
 			IMU.Angle_Y = Angle[1];		
 			IMU.Angle_Z = Angle[2];
+            
+			Chassis.UpdateChassisAttitude((float)Angle[2], (float)Angle[1], (float)(Accel[1] + Acceldeviation_Y), -(float)(Accel[0] + Acceldeviation_X), (float)(Accel[2] + Acceldeviation_Z));
+            Chassis_IMU.UpdateAttitude((float)Angle[2], (float)Angle[1], (float)(Accel[1] + Acceldeviation_Y), -(float)(Accel[0] + Acceldeviation_X), (float)(Accel[2] + Acceldeviation_Z));
 			IMU.Temp = Temp;
 		}
 		if(FirstHeatFlag){

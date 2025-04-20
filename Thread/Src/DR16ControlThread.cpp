@@ -22,8 +22,7 @@
     
 
 
-    DR16_t    *DR16 = DR16_Point();
-    static Chassis_t *Chassis = ChassisPoint();
+    DR16_t* DR16 = DR16_Point();
 
     
     while(true){
@@ -33,13 +32,13 @@
 
 
 			case REMOTE_SW_UP:
-				Chassis->SetBehaviour(CHASSIS_ZERO_FORCE);
+				Chassis.SetBehaviour(CHASSIS_ZERO_FORCE);
 
 		// 		Gimbal->SetBehaviour(GIMBAL_ZERO_FORCE);
 				break;
 			case REMOTE_SW_MID:
-				Chassis->SetBehaviour(CHASSIS_NO_FOLLOW);  // CHASSIS_FOLLOW_GIMBAL CHASSIS_NO_FOLLOW
-                Chassis->SetChassisSpeed((float)DR16->CH1 / 660.0f * Scaler_Chassis, (float)DR16->CH2 / 660.0f * Scaler_Chassis, (float)DR16->CH3 );
+				Chassis.SetBehaviour(CHASSIS_NO_FOLLOW);  // CHASSIS_FOLLOW_GIMBAL CHASSIS_NO_FOLLOW
+                Chassis.SetChassisSpeed((float)DR16->CH1 / 660.0f * Scaler_Chassis, (float)DR16->CH2 / 660.0f * Scaler_Chassis, (float)DR16->CH3 );
 		// 		Gimbal->SetBehaviour(GIMBAL_ZERO_FORCE); // GIMBAL_ENABLE
 		// 		Gimbal->SetSpeed(((float)DR16->CH3) / 660.0f * 0.6f * K_Gimbal, ((float)DR16->CH4) / 660.0f * 0.4f * K_Gimbal);
 				
@@ -47,8 +46,8 @@
 
 				break;
 			case REMOTE_SW_DOWN:
-				Chassis->SetBehaviour(CHASSIS_SPIN);  // CHASSIS_FOLLOW_GIMBAL CHASSIS_SPIN
-                Chassis->SetChassisSpeed((float)DR16->CH1 / 660.0f * Scaler_Chassis, (float)DR16->CH2 / 660.0f * Scaler_Chassis, 0);
+				Chassis.SetBehaviour(CHASSIS_SPIN);  // CHASSIS_FOLLOW_GIMBAL CHASSIS_SPIN
+                Chassis.SetChassisSpeed((float)DR16->CH1 / 660.0f * Scaler_Chassis, (float)DR16->CH2 / 660.0f * Scaler_Chassis, 0);
 		// 		Gimbal->SetBehaviour(GIMBAL_ZERO_FORCE); // GIMBAL_ENABLE
 		// 		Gimbal->SetSpeed(((float)DR16->CH3) / 660.0f * 0.6f * K_Gimbal, ((float)DR16->CH4) / 660.0f * 0.4f * K_Gimbal);
 				
@@ -56,7 +55,7 @@
 				
 				break;
 			default:
-				Chassis->SetBehaviour(CHASSIS_ZERO_FORCE);
+				Chassis.SetBehaviour(CHASSIS_ZERO_FORCE);
 				
 				// Gimbal->SetBehaviour(GIMBAL_ZERO_FORCE);
 				break;

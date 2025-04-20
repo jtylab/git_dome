@@ -13,19 +13,8 @@
  #define IMU_CAN_H
 
  #include "main.h"
-
-
-class IMU_CAN_t{
-    private:
-        uint32_t IMU_CAN_ID;
-
-    public:
-        void IMU_CAN_Init(void)
-        void IMU_CAN_Callback(uint32_t ID, uint8_t* Data);
-        void SetCANID(uint32_t ID);
-        
-};
-
+ #include "BSP_CAN.h"
+ #include "ChassisThread.h"
 
 
  #ifdef __cplusplus
@@ -34,19 +23,45 @@ class IMU_CAN_t{
 
  #ifdef __cplusplus
 
+ class Gimbal_IMU_t{
+
+    public:
+        
+        float Yaw_Angle;
+        float Pitch_Angle;
+        float X_Acceleration;
+        float Y_Acceleration;
+        float Z_Acceleration;
+
+        void UpdateAttitude(float Yaw_Angle, float Pitch_Angle, float X_Acceleration, float Y_Acceleration, float Z_Acceleration);
+};
 
 
+class Chassis_IMU_t{
+    public:
+        float Yaw_Angle;
+        float Pitch_Angle;
+        float X_Acceleration;
+        float Y_Acceleration;
+        float Z_Acceleration; 
 
+        void UpdateAttitude(float Yaw_Angle, float Pitch_Angle, float X_Acceleration, float Y_Acceleration, float Z_Acceleration);
+};
 
+class IMU_CAN_t{
+    private:
+        uint32_t IMU_CAN_ID;
 
+    public:
+        void SetCANID(uint32_t ID);
+        uint32_t GetCANID(void);
+        
+};
 
+static Chassis_IMU_t Chassis_IMU;
+static Gimbal_IMU_t Gimbal_IMU;
 
-
-
-
-
-
-
+void IMU_CAN_Init(void);
 
  #endif
 

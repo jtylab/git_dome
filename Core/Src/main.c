@@ -144,10 +144,11 @@ int main(void)
   BSP_PWM_Init();
   BSP_CAN_Init();
   BSP_UART_Init();
-	// BSP_IMU_Init();
+	BSP_IMU_Init();
 	
   DR16_Init();
   IMU_CAN_Init();
+  
   // Motor_Init();
   RM_Motor_Init();
   //SuperCap_Init();
@@ -161,7 +162,7 @@ DR16ControlThread_Init();
 MainThread_Init();
 InteractionThread_Init();
   // DebuggerThread_Init();
-  ChassisThread_Init();
+ChassisThread_Init();
 
 
 

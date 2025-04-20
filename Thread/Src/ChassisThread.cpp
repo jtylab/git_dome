@@ -14,7 +14,6 @@
 #define Lnitial_Angle_Deviation  180          //云台和底盘同向时的起始角度偏差
 #define Kf        0.007                       //相对角度前馈
 
-Chassis_t Chassis;
 
 
 
@@ -67,7 +66,7 @@ void Chassis_t::SetRelativeAttitude(void){
 	float Gimbal_Angle_Pitch_pi = Gimbal_Presently_Attitude.Pitch_Angle * pi / 180.0f;
 	Yaw_RelativeAngularVelocity = - Chassis_Presently_Attitude.Z_Acceleration - Gimbal_Presently_Attitude.X_Acceleration * sin(Gimbal_Angle_Pitch_pi) + Gimbal_Presently_Attitude.Z_Acceleration * cos(Gimbal_Angle_Pitch_pi);
 	Pitch_RelativeAngularVelocity = - sin(Gimbal_Angle_Yaw_pi) * Chassis_Presently_Attitude.X_Acceleration - cos(Gimbal_Angle_Yaw_pi) * Chassis_Presently_Attitude.Y_Acceleration + Gimbal_Presently_Attitude.Y_Acceleration;
-	Yaw_RelativeAngle = (RelativeAngle * pi / 180.0f) + Kf * Yaw_RelativeAngularVelocity;
+	Yaw_RelativeAngle = (float)(RelativeAngle * pi / 180.0f) + Kf * Yaw_RelativeAngularVelocity;
 }
 
 
@@ -123,7 +122,7 @@ void Chassis_t::SetChassisSpeed(float Speed_X, float Speed_Y, float Speed_Z) {
  * @param Yaw_Acceleration    
  * @param Pitch_Acceleration 
  */
-void Chassis_t::SetChassisAttitude(float Yaw_Angle, float Pitch_Angle, float X_Acceleration, float Y_Acceleration, float Z_Acceleration){
+void Chassis_t::UpdateChassisAttitude(float Yaw_Angle, float Pitch_Angle, float X_Acceleration, float Y_Acceleration, float Z_Acceleration){
 	Chassis_Presently_Attitude.Yaw_Angle          = Yaw_Angle;
 	Chassis_Presently_Attitude.Pitch_Angle        = Pitch_Angle;
 	Chassis_Presently_Attitude.X_Acceleration   = X_Acceleration;
@@ -211,9 +210,6 @@ void Chassis_t::Generate(void) {
 			Prv_Behaviour_Last = CHASSIS_NO_MOVE;
 			break;
 		case CHASSIS_NO_FOLLOW:  // 底盘不跟随云台
-		    Chassis_Target_Speed.X = Gimbal_Target_Speed.X;
-	     	Chassis_Target_Speed.Y = Gimbal_Target_Speed.Y;
-		    Chassis_Target_Speed.Z = Gimbal_Target_Speed.Z;
 			IK_MotorSpeed();
 			Prv_Behaviour_Last = CHASSIS_NO_FOLLOW;
 			break;
@@ -297,12 +293,5 @@ void ChassisThread_Init(void) {
 	ChassisThreadHandle = osThreadNew(ChassisTask, NULL, &ChassisTask_attributes);  // 创建底盘线程
 }
 
-/**
- * @brief 取底盘类指针
- * @return class Chassis_t*
- */
-Chassis_t* ChassisPoint(void) {
-	return &Chassis;
-}
 
 // /*********************************END OF FILE*********************************/
