@@ -20,7 +20,6 @@
 #define TwoKi	(2.0f * 0.0f)			// 2 * integral gain
 
 extern "C" {}
-static IMU_t IMU;
 static unsigned int BMI088_ErrorCode = 0;
 /* Functions -----------------------------------------------------------------*/
 /**

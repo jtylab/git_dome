@@ -85,7 +85,7 @@ class Chassis_t {
 
 		RM_Motor_t* Prv_Motor[4];
 		PID_t Prv_PID_Motor_Speed[4];
-		float Prv_Motor_Speed_Target[4];
+		float Motor_Target_Speed[4];
 		float Chassis_Currentspeed_X;
 		float Chassis_Currentspeed_Y;
 		float Chassis_Currentspeed_Z;
@@ -94,18 +94,38 @@ class Chassis_t {
 			float X;
 			float Y;
 			float Z;
-		} Prv_Speed;  // 底盘坐标系速度向量
-
+		} Chassis_Target_Speed;            // 底盘坐标系速度目标向量
 		struct {
 			float X;
 			float Y;
 			float Z;
-		} Prv_TargetSpeed;  // 目标速度向量
+		} Gimbal_Target_Speed;             // 云台坐标系目标速度向量
 
+		struct 
+		{
+			float Yaw_Angle;
+			float Pitch_Angle;                //360
+			float X_Acceleration;          //rad/s
+			float Y_Acceleration;
+			float Z_Acceleration;
+		} Chassis_Presently_Attitude;         //底盘坐标系相对大地坐标系的姿态信息
+
+		struct 
+		{
+			float Yaw_Angle;
+			float Pitch_Angle;                //360
+			float X_Acceleration;           //rad/s
+			float Y_Acceleration;
+			float Z_Acceleration;
+		} Gimbal_Presently_Attitude;          //云台坐标系相对大地坐标系的姿态信息
+		
+		
 		float Prv_Spin_Speed;  // 小陀螺转速
 		float Prv_MaxSpinSpeed;
 
-		float Prv_RelativeAngle;  // 底盘相对云台坐标系的角度 (rad)(0~2Pi)
+		float Yaw_RelativeAngle;                      // 底盘相对云台坐标系的角度 (rad)(-pi,pi)
+		float Yaw_RelativeAngularVelocity;            // 云台相对底盘的角速度Yaw轴电机角速度
+		float Pitch_RelativeAngularVelocity;          // 云台相对底盘的角速度Pitch轴电机角速度
 
 		PID_t Prv_PID_Follow;
 
@@ -118,24 +138,23 @@ class Chassis_t {
 		float Prv_TransitionLPFq;  // 取值 0.0~1.0
 
 	private:
-		float SpinSpeedGenerate(void);
 		void  CalcSpeedWithRelativeAngle(void);
 		void  FK_ChassisSpeed(void);
 		void  IK_MotorSpeed(void);
 
 	public:
 		Chassis_t() {
-			Prv_TargetSpeed.X = 0;
-			Prv_TargetSpeed.Y = 0;
-			Prv_TargetSpeed.Z = 0;
-			Prv_Speed.X = 0;
-			Prv_Speed.Y = 0;
-			Prv_Speed.Z = 0;
+			Gimbal_Target_Speed.X = 0;
+			Gimbal_Target_Speed.Y = 0;
+			Gimbal_Target_Speed.Z = 0;
+			Chassis_Target_Speed.X = 0;
+			Chassis_Target_Speed.Y = 0;
+			Chassis_Target_Speed.Z = 0;
 			Chassis_Currentspeed_X = 0;
 		    Chassis_Currentspeed_Y = 0;
 		    Chassis_Currentspeed_Z = 0;
 			Prv_Spin_Speed = 0;
-			Prv_RelativeAngle = 0;
+			Yaw_RelativeAngle = 0;
 			Prv_Flag_PowerLimit = 0;
 			Prv_PowerLimit_Target = 60.0f;
 			Prv_MaxSpinSpeed = 6000.0f;
@@ -143,10 +162,12 @@ class Chassis_t {
 		}
 		void Init(RM_Motor_t* Motor_LU, RM_Motor_t* Motor_RU, RM_Motor_t* Motor_LD, RM_Motor_t* Motor_RD);
 		void SetBehaviour(ChassisBehaviour_e Behaviour);
-		void SetTrendAngle(float Trend_Angle);
+		void SetRelativeAttitude(void);
 		void SetPowerLimitFlag(bool doPowerLimit);
 		void SetPowerLimitTarget(float Watt);
 		void SetChassisSpeed(float Speed_X, float Speed_Y, float Speed_Z);
+		void SetChassisAttitude(float Yaw_Angle, float Pitch_Angle, float X_Acceleration, float Y_Acceleration, float Z_Acceleration);
+		void SetGimbalSpeed(float Speed_X, float Speed_Y, float Speed_Z);
 		void GetChassisSpeed(float* Chassis_X, float* Chassis_Y, float* Chassis_Z);
 		void Generate(void);
 };

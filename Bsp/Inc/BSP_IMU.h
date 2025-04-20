@@ -22,7 +22,7 @@
 		
 #include "cmsis_os.h"
 #include "FreeRTOS.h"
-#include "task.h"	
+#include "task.h"
 		
 typedef struct{
 	float Angle_X;//Å·À­½Ç
@@ -40,7 +40,7 @@ typedef struct{
 	float Temp;		//ÎÂ¶È
 } IMU_t;	
 		
-		
+static IMU_t IMU;		
 void BSP_IMU_Init(void);
 
 #ifdef __cplusplus

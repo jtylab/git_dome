@@ -1,54 +1,57 @@
 /**
  * @file IMU_CAN.h
- * @brief 维特智能陀螺仪（经过串口转CAN）
- * @attention
- * @hardware 
- * @version 0.2
- * @date 2024-03-22
- * @author tianxu, he
- * @copyright Copyright (c) LNPU TCN
- *
+ * @author jiang
+ * @brief C板之间的IMU姿态传感器信息传递
+ * @version 0.1
+ * @date 2025-04-19
+ * 
+ * @copyright Copyright (c) 2025
+ * 
  */
-#ifndef __IMU_CAN_H
-#define __IMU_CAN_H
 
-#include "main.h"
+ #ifndef IMU_CAN_H
+ #define IMU_CAN_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+ #include "main.h"
 
-typedef struct {
-	float Angle_X;  // 欧拉角
-	float Angle_Y;
-	float Angle_Z;
 
-	float Palst_X;  // 角速度
-	float Palst_Y;
-	float Palst_Z;
+class IMU_CAN_t{
+    private:
+        uint32_t IMU_CAN_ID;
 
-	float Accel_X;  // 加速度
-	float Accel_Y;
-	float Accel_Z;
+    public:
+        void IMU_CAN_Init(void)
+        void IMU_CAN_Callback(uint32_t ID, uint8_t* Data);
+        void SetCANID(uint32_t ID);
+        
+};
 
-	float Magne_X;  // 磁场
-	float Magne_Y;
-	float Magne_Z;
 
-	float Heigh_P;  // 气压
-	float Heigh_H;  // 高度
 
-	float Temp;  // 温度
-} IMU_CAN_t;
+ #ifdef __cplusplus
+ extern "C" {
+ #endif
 
-IMU_CAN_t* IMU_CAN_Point(uint8_t Code);
+ #ifdef __cplusplus
 
-void IMU_CAN_Init(void);
 
-#ifdef __cplusplus
-} /* extern "C" */
-#endif
 
-#endif /* __IMU_CAN_H */
 
-/*********************************END OF FILE*********************************/
+
+
+
+
+
+
+
+
+
+
+
+ #endif
+
+ #ifdef __cplusplus
+ } /* extern "C" */
+ #endif
+ 
+ #endif // !IMU_CAN_H

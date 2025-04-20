@@ -17,7 +17,7 @@
 
 #define CAN_NUM 2
 
-#define CB_FUNC_NUM     5
+#define CB_FUNC_NUM     6
 #define CB_FUNC_RAW_NUM 2
 
 

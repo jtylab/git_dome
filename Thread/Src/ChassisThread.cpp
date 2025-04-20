@@ -11,8 +11,12 @@
  */
 #include "ChassisThread.h"
 
+#define Lnitial_Angle_Deviation  180          //云台和底盘同向时的起始角度偏差
+#define Kf        0.007                       //相对角度前馈
 
 Chassis_t Chassis;
+
+
 
 /**
  * @brief 底盘初始化函数
@@ -53,13 +57,21 @@ void Chassis_t::SetBehaviour(ChassisBehaviour_e Behaviour) {
 }
 
 /**
- * @brief 置前进方向偏角函数
- * @param Trend_Angle 目标角度，弧度制 (0-2PI)
+ * @brief 计算云台于底盘的相对姿态信息
+ * 
+ * @remark 同时完成了相对角度从360到(-pi,pi)的映射
  */
-void Chassis_t::SetTrendAngle(float Trend_Angle) {
-	Trend_Angle = 360.0f - Trend_Angle;
-	Prv_RelativeAngle = Trend_Angle * pi / 180.0f;
+void Chassis_t::SetRelativeAttitude(void){
+	float RelativeAngle = Gimbal_Presently_Attitude.Yaw_Angle - (Chassis_Presently_Attitude.Yaw_Angle + Lnitial_Angle_Deviation);
+	float Gimbal_Angle_Yaw_pi = Gimbal_Presently_Attitude.Yaw_Angle * pi / 180.0f;
+	float Gimbal_Angle_Pitch_pi = Gimbal_Presently_Attitude.Pitch_Angle * pi / 180.0f;
+	Yaw_RelativeAngularVelocity = - Chassis_Presently_Attitude.Z_Acceleration - Gimbal_Presently_Attitude.X_Acceleration * sin(Gimbal_Angle_Pitch_pi) + Gimbal_Presently_Attitude.Z_Acceleration * cos(Gimbal_Angle_Pitch_pi);
+	Pitch_RelativeAngularVelocity = - sin(Gimbal_Angle_Yaw_pi) * Chassis_Presently_Attitude.X_Acceleration - cos(Gimbal_Angle_Yaw_pi) * Chassis_Presently_Attitude.Y_Acceleration + Gimbal_Presently_Attitude.Y_Acceleration;
+	Yaw_RelativeAngle = (RelativeAngle * pi / 180.0f) + Kf * Yaw_RelativeAngularVelocity;
 }
+
+
+
 
 /**
  * @brief 底盘设置是否需要功率限制
@@ -76,7 +88,20 @@ void Chassis_t::SetPowerLimitTarget(float Watt) {
 }
 
 /**
- * @brief Set物理中心的目标速度X,Y,Z(正方向分别为,上,左,逆时针)
+ * @brief Set云台的目标速度X,Y,Z(正方向分别为,上,左,逆时针)
+ * 
+ * @param Speed_X 
+ * @param Speed_Y 
+ * @param Speed_Z 
+ */
+void Chassis_t::SetGimbalSpeed(float Speed_X, float Speed_Y, float Speed_Z){
+	Gimbal_Target_Speed.X = Speed_X;
+	Gimbal_Target_Speed.Y = Speed_Y;
+	Gimbal_Target_Speed.Z = Speed_Z;
+}
+
+/**
+ * @brief Set底盘的目标速度X,Y,Z(正方向分别为,上,左,逆时针)
  * 
  * @param Speed_X  //物理中心X轴线速度
  * @param Speed_Y  //物理中心Y轴线速度
@@ -85,9 +110,25 @@ void Chassis_t::SetPowerLimitTarget(float Watt) {
  * @brief m/s
  */
 void Chassis_t::SetChassisSpeed(float Speed_X, float Speed_Y, float Speed_Z) {
-	Prv_TargetSpeed.X = Speed_X;
-	Prv_TargetSpeed.Y = Speed_Y;
-	Prv_TargetSpeed.Z = Speed_Z;
+	Chassis_Target_Speed.X = Speed_X;
+	Chassis_Target_Speed.Y = Speed_Y;
+	Chassis_Target_Speed.Z = Speed_Z;
+}
+
+/**
+ * @brief Set底盘坐标系相对大地坐标系的姿态信息
+ * 
+ * @param Yaw_Angle 
+ * @param Pitch_Angle 
+ * @param Yaw_Acceleration    
+ * @param Pitch_Acceleration 
+ */
+void Chassis_t::SetChassisAttitude(float Yaw_Angle, float Pitch_Angle, float X_Acceleration, float Y_Acceleration, float Z_Acceleration){
+	Chassis_Presently_Attitude.Yaw_Angle          = Yaw_Angle;
+	Chassis_Presently_Attitude.Pitch_Angle        = Pitch_Angle;
+	Chassis_Presently_Attitude.X_Acceleration   = X_Acceleration;
+	Chassis_Presently_Attitude.Y_Acceleration   = Y_Acceleration;
+	Chassis_Presently_Attitude.X_Acceleration   = X_Acceleration;
 }
 
 /**
@@ -113,10 +154,10 @@ void Chassis_t::GetChassisSpeed(float* Chassis_X, float* Chassis_Y, float* Chass
  */
 void Chassis_t::IK_MotorSpeed(void) {
 	// clang-format off
-	Prv_Motor_Speed_Target[LU] = (cos(LU_Angle)*Prv_Speed.X + sin(LU_Angle)*Prv_Speed.Y + Chassis_R*Prv_Speed.Z) / Motort_R;
-	Prv_Motor_Speed_Target[RU] = (cos(RU_Angle)*Prv_Speed.X + sin(RU_Angle)*Prv_Speed.Y + Chassis_R*Prv_Speed.Z) / Motort_R;
-	Prv_Motor_Speed_Target[LD] = (cos(LD_Angle)*Prv_Speed.X + sin(LD_Angle)*Prv_Speed.Y + Chassis_R*Prv_Speed.Z) / Motort_R;
-	Prv_Motor_Speed_Target[RD] = (cos(RD_Angle)*Prv_Speed.X + sin(RD_Angle)*Prv_Speed.Y + Chassis_R*Prv_Speed.Z) / Motort_R;
+	Motor_Target_Speed[LU] = (cos(LU_Angle)*Chassis_Target_Speed.X + sin(LU_Angle)*Chassis_Target_Speed.Y + Chassis_R*Chassis_Target_Speed.Z) / Motort_R;
+	Motor_Target_Speed[RU] = (cos(RU_Angle)*Chassis_Target_Speed.X + sin(RU_Angle)*Chassis_Target_Speed.Y + Chassis_R*Chassis_Target_Speed.Z) / Motort_R;
+	Motor_Target_Speed[LD] = (cos(LD_Angle)*Chassis_Target_Speed.X + sin(LD_Angle)*Chassis_Target_Speed.Y + Chassis_R*Chassis_Target_Speed.Z) / Motort_R;
+	Motor_Target_Speed[RD] = (cos(RD_Angle)*Chassis_Target_Speed.X + sin(RD_Angle)*Chassis_Target_Speed.Y + Chassis_R*Chassis_Target_Speed.Z) / Motort_R;
 	// clang-format on
 }
 
@@ -133,39 +174,15 @@ void Chassis_t::FK_ChassisSpeed(void){
 }
 
 
-/**
- * @brief 更新小陀螺转速
- */
-float Chassis_t::SpinSpeedGenerate(void) {
-	/*
-	static float Time = 0;
-	Time += 2.0f * PI * 1.0f / 1000.0f;
-	if (Time >= 2.0f * PI) {
-		Time -= 2.0f * PI;
-	}
-	// Prv_Spin_Speed = 8900*0.7 + 0.3*8900*((sin(Time)+1)/2.0);
-	Prv_Spin_Speed = 4000;  // 8911
-	*/
-
-	if (Prv_Behaviour_Last != CHASSIS_SPIN) {
-		Prv_Spin_Speed = 1.0f / 4.0f * (Prv_Motor[LU]->GetSpeed() + Prv_Motor[RU]->GetSpeed() + Prv_Motor[LD]->GetSpeed() + Prv_Motor[RD]->GetSpeed());
-	}
-	if (Prv_Spin_Speed >= Prv_MaxSpinSpeed) {
-		Prv_Spin_Speed = Prv_MaxSpinSpeed;
-	} else {
-		Prv_Spin_Speed += 20;
-	}
-
-	return Prv_Spin_Speed;
-}
 
 /**
  * @brief 与云台有相对角度时，计算速度向量（应用旋转矩阵，从云台坐标系变换到底盘坐标系）
  */
 void Chassis_t::CalcSpeedWithRelativeAngle(void) {
 	// clang-format off
-	Prv_Speed.X = Prv_TargetSpeed.X *  cos(Prv_RelativeAngle) + Prv_TargetSpeed.Y * sin(Prv_RelativeAngle);
-	Prv_Speed.Y = Prv_TargetSpeed.X * -sin(Prv_RelativeAngle) + Prv_TargetSpeed.Y * cos(Prv_RelativeAngle);
+	SetRelativeAttitude();
+	Chassis_Target_Speed.X = Gimbal_Target_Speed.X *  cos(Yaw_RelativeAngle) - Gimbal_Target_Speed.Y * sin(Yaw_RelativeAngle);
+	Chassis_Target_Speed.Y = Gimbal_Target_Speed.X *  sin(Yaw_RelativeAngle) + Gimbal_Target_Speed.Y * cos(Yaw_RelativeAngle);
 	// clang-format on
 }
 
@@ -187,16 +204,16 @@ void Chassis_t::Generate(void) {
 			Prv_Behaviour_Last = CHASSIS_ZERO_FORCE;
 			return;            // 无力的关键
 		case CHASSIS_NO_MOVE:  // 底盘不动模式
-			Prv_Motor_Speed_Target[LU] = 0;
-			Prv_Motor_Speed_Target[RU] = 0;
-			Prv_Motor_Speed_Target[LD] = 0;
-			Prv_Motor_Speed_Target[RD] = 0;
+		    Motor_Target_Speed[LU] = 0;
+		    Motor_Target_Speed[RU] = 0;
+		    Motor_Target_Speed[LD] = 0;
+		    Motor_Target_Speed[RD] = 0;
 			Prv_Behaviour_Last = CHASSIS_NO_MOVE;
 			break;
 		case CHASSIS_NO_FOLLOW:  // 底盘不跟随云台
-			Prv_Speed.X = Prv_TargetSpeed.X;
-			Prv_Speed.Y = Prv_TargetSpeed.Y;
-			Prv_Speed.Z = Prv_TargetSpeed.Z;
+		    Chassis_Target_Speed.X = Gimbal_Target_Speed.X;
+	     	Chassis_Target_Speed.Y = Gimbal_Target_Speed.Y;
+		    Chassis_Target_Speed.Z = Gimbal_Target_Speed.Z;
 			IK_MotorSpeed();
 			Prv_Behaviour_Last = CHASSIS_NO_FOLLOW;
 			break;
@@ -207,18 +224,17 @@ void Chassis_t::Generate(void) {
 				Prv_PID_Follow.SetLimit(4000, 2000);
 			}
 			CalcSpeedWithRelativeAngle();
-			if (Prv_Flag_Transit && fabs(Prv_RelativeAngle) < 0.05f * 2.0f * PI) {  // 缓启动完成
+			if (Prv_Flag_Transit && fabs(Yaw_RelativeAngle) < 0.05f * 2.0f * PI) {  // 缓启动完成
 				Prv_PID_Follow.SetPID(-2000, 0, -500);
 				Prv_PID_Follow.SetLimit(3000, 6000);
 				Prv_Flag_Transit = 0;
 			}
-			Prv_Speed.Z = -Prv_PID_Follow.GenerateRing(Prv_RelativeAngle, 0, 2.0f * PI);  // 跟随
+			Chassis_Target_Speed.Z = -Prv_PID_Follow.GenerateRing(Yaw_RelativeAngle, 0, 2.0f * PI);  // 跟随
 			IK_MotorSpeed();
 			Prv_Behaviour_Last = CHASSIS_FOLLOW_GIMBAL;
 			break;
 		case CHASSIS_SPIN:  // 小陀螺运动
 			CalcSpeedWithRelativeAngle();
-			Prv_Speed.Z = -SpinSpeedGenerate();  // 按该函数更新转速
 			IK_MotorSpeed();
 			Prv_Behaviour_Last = CHASSIS_SPIN;
 			break;
@@ -227,8 +243,8 @@ void Chassis_t::Generate(void) {
 	// 限速，保持各轮子之间的速度比
 	MotorSpeed_Max = 0;
 	for (int i = 0; i < 4; i++) {
-		if (fabs(Prv_Motor_Speed_Target[i]) > MotorSpeed_Max) {
-			MotorSpeed_Max = fabs(Prv_Motor_Speed_Target[i]);
+		if (fabs(Motor_Target_Speed[i]) > MotorSpeed_Max) {
+			MotorSpeed_Max = fabs(Motor_Target_Speed[i]);
 		}
 	}
 	if (MotorSpeed_Max > 8191) {
@@ -247,10 +263,10 @@ void Chassis_t::Generate(void) {
 	// }
 
 	// 计算速度环 PID
-	Prv_PID_Motor_Speed[LU].Generate(Prv_Motor[LU]->GetSpeed(), K_LimitByPwr * SpeedLimitK * Prv_Motor_Speed_Target[LU]);
-	Prv_PID_Motor_Speed[RU].Generate(Prv_Motor[RU]->GetSpeed(), K_LimitByPwr * SpeedLimitK * Prv_Motor_Speed_Target[RU]);
-	Prv_PID_Motor_Speed[LD].Generate(Prv_Motor[LD]->GetSpeed(), K_LimitByPwr * SpeedLimitK * Prv_Motor_Speed_Target[LD]);
-	Prv_PID_Motor_Speed[RD].Generate(Prv_Motor[RD]->GetSpeed(), K_LimitByPwr * SpeedLimitK * Prv_Motor_Speed_Target[RD]);
+	Prv_PID_Motor_Speed[LU].Generate(Prv_Motor[LU]->GetSpeed(), K_LimitByPwr * SpeedLimitK * Motor_Target_Speed[LU]);
+	Prv_PID_Motor_Speed[RU].Generate(Prv_Motor[RU]->GetSpeed(), K_LimitByPwr * SpeedLimitK * Motor_Target_Speed[RU]);
+	Prv_PID_Motor_Speed[LD].Generate(Prv_Motor[LD]->GetSpeed(), K_LimitByPwr * SpeedLimitK * Motor_Target_Speed[LD]);
+	Prv_PID_Motor_Speed[RD].Generate(Prv_Motor[RD]->GetSpeed(), K_LimitByPwr * SpeedLimitK * Motor_Target_Speed[RD]);
 
 	// 将 PID 计算结果给电机
 	Prv_Motor[LU]->SetCurrent(Prv_PID_Motor_Speed[LU].GetOutput());  //  / 6.5f

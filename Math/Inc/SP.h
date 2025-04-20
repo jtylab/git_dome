@@ -15,6 +15,15 @@
 #include "main.h"
 #include "math.h"
 
+
+
+ #ifdef __cplusplus
+ extern "C" {
+ #endif
+
+ #ifdef __cplusplus
+
+
 enum Enum_Slope_First{
     Slope_First_REAL = 0,      //真实值优先
     Slope_First_TARGET,        //目标值优先
@@ -35,15 +44,6 @@ class SP_t{
         float GetOutput(void);
 
  };
-
-
- #ifdef __cplusplus
- extern "C" {
- #endif
-
- #ifdef __cplusplus
-
-
 
 
 
