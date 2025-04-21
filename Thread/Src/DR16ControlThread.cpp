@@ -47,7 +47,7 @@
 				break;
 			case REMOTE_SW_DOWN:
 				Chassis.SetBehaviour(CHASSIS_SPIN);  // CHASSIS_FOLLOW_GIMBAL CHASSIS_SPIN
-                Chassis.SetChassisSpeed((float)DR16->CH1 / 660.0f * Scaler_Chassis, (float)DR16->CH2 / 660.0f * Scaler_Chassis, 0);
+                Chassis.SetGimbalSpeed((float)DR16->CH1 / 660.0f * Scaler_Chassis, (float)DR16->CH2 / 660.0f * Scaler_Chassis, 0);
 		// 		Gimbal->SetBehaviour(GIMBAL_ZERO_FORCE); // GIMBAL_ENABLE
 		// 		Gimbal->SetSpeed(((float)DR16->CH3) / 660.0f * 0.6f * K_Gimbal, ((float)DR16->CH4) / 660.0f * 0.4f * K_Gimbal);
 				

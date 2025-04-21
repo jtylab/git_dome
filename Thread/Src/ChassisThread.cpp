@@ -13,6 +13,8 @@
 
 #define Lnitial_Angle_Deviation  180          //云台和底盘同向时的起始角度偏差
 #define Kf        0.007                       //相对角度前馈
+#define Smallgyro_speed      1000.0f
+
 
 
 
@@ -60,13 +62,14 @@ void Chassis_t::SetBehaviour(ChassisBehaviour_e Behaviour) {
  * 
  * @remark 同时完成了相对角度从360到(-pi,pi)的映射
  */
-void Chassis_t::SetRelativeAttitude(void){
+void Chassis_t::UpdataRelativeAttitude(void){
 	float RelativeAngle = Gimbal_Presently_Attitude.Yaw_Angle - (Chassis_Presently_Attitude.Yaw_Angle + Lnitial_Angle_Deviation);
 	float Gimbal_Angle_Yaw_pi = Gimbal_Presently_Attitude.Yaw_Angle * pi / 180.0f;
 	float Gimbal_Angle_Pitch_pi = Gimbal_Presently_Attitude.Pitch_Angle * pi / 180.0f;
-	Yaw_RelativeAngularVelocity = - Chassis_Presently_Attitude.Z_Acceleration - Gimbal_Presently_Attitude.X_Acceleration * sin(Gimbal_Angle_Pitch_pi) + Gimbal_Presently_Attitude.Z_Acceleration * cos(Gimbal_Angle_Pitch_pi);
-	Pitch_RelativeAngularVelocity = - sin(Gimbal_Angle_Yaw_pi) * Chassis_Presently_Attitude.X_Acceleration - cos(Gimbal_Angle_Yaw_pi) * Chassis_Presently_Attitude.Y_Acceleration + Gimbal_Presently_Attitude.Y_Acceleration;
-	Yaw_RelativeAngle = (float)(RelativeAngle * pi / 180.0f) + Kf * Yaw_RelativeAngularVelocity;
+
+	Chassis_t::Yaw_RelativeAngularVelocity = - Chassis_Presently_Attitude.Z_Acceleration - Gimbal_Presently_Attitude.X_Acceleration * sin(Gimbal_Angle_Pitch_pi) + Gimbal_Presently_Attitude.Z_Acceleration * cos(Gimbal_Angle_Pitch_pi);
+	Chassis_t::Pitch_RelativeAngularVelocity = - sin(Gimbal_Angle_Yaw_pi) * Chassis_Presently_Attitude.X_Acceleration - cos(Gimbal_Angle_Yaw_pi) * Chassis_Presently_Attitude.Y_Acceleration + Gimbal_Presently_Attitude.Y_Acceleration;
+	Chassis_t::Yaw_RelativeAngle = (float)((RelativeAngle * pi / 180.0f) + Kf * Yaw_RelativeAngularVelocity);
 }
 
 
@@ -115,7 +118,7 @@ void Chassis_t::SetChassisSpeed(float Speed_X, float Speed_Y, float Speed_Z) {
 }
 
 /**
- * @brief Set底盘坐标系相对大地坐标系的姿态信息
+ * @brief 更新底盘坐标系相对大地坐标系的姿态信息
  * 
  * @param Yaw_Angle 
  * @param Pitch_Angle 
@@ -123,12 +126,29 @@ void Chassis_t::SetChassisSpeed(float Speed_X, float Speed_Y, float Speed_Z) {
  * @param Pitch_Acceleration 
  */
 void Chassis_t::UpdateChassisAttitude(float Yaw_Angle, float Pitch_Angle, float X_Acceleration, float Y_Acceleration, float Z_Acceleration){
-	Chassis_Presently_Attitude.Yaw_Angle          = Yaw_Angle;
-	Chassis_Presently_Attitude.Pitch_Angle        = Pitch_Angle;
+	Chassis_Presently_Attitude.Yaw_Angle        = Yaw_Angle;
+	Chassis_Presently_Attitude.Pitch_Angle      = Pitch_Angle;
 	Chassis_Presently_Attitude.X_Acceleration   = X_Acceleration;
 	Chassis_Presently_Attitude.Y_Acceleration   = Y_Acceleration;
 	Chassis_Presently_Attitude.X_Acceleration   = X_Acceleration;
 }
+
+/**
+ * @brief 更新云台坐标系相对大地坐标系的姿态信息
+ * 
+ * @param Yaw_Angle 
+ * @param Pitch_Angle 
+ * @param Yaw_Acceleration    
+ * @param Pitch_Acceleration 
+ */
+void Chassis_t::UpdateGimbalAttitude(float Yaw_Angle, float Pitch_Angle, float X_Acceleration, float Y_Acceleration, float Z_Acceleration){
+	Gimbal_Presently_Attitude.Yaw_Angle        = Yaw_Angle;
+	Gimbal_Presently_Attitude.Pitch_Angle      = Pitch_Angle;
+	Gimbal_Presently_Attitude.X_Acceleration   = X_Acceleration;
+	Gimbal_Presently_Attitude.Y_Acceleration   = Y_Acceleration;
+	Gimbal_Presently_Attitude.X_Acceleration   = X_Acceleration;
+}
+
 
 /**
  * @brief Get物理中心底盘的当前速度X,Y,Z(正方向分别为,上,左,逆时针)
@@ -153,6 +173,8 @@ void Chassis_t::GetChassisSpeed(float* Chassis_X, float* Chassis_Y, float* Chass
  */
 void Chassis_t::IK_MotorSpeed(void) {
 	// clang-format off
+	if(Prv_Behaviour == CHASSIS_SPIN){Chassis_Target_Speed.Z = Smallgyro_speed;}
+
 	Motor_Target_Speed[LU] = (cos(LU_Angle)*Chassis_Target_Speed.X + sin(LU_Angle)*Chassis_Target_Speed.Y + Chassis_R*Chassis_Target_Speed.Z) / Motort_R;
 	Motor_Target_Speed[RU] = (cos(RU_Angle)*Chassis_Target_Speed.X + sin(RU_Angle)*Chassis_Target_Speed.Y + Chassis_R*Chassis_Target_Speed.Z) / Motort_R;
 	Motor_Target_Speed[LD] = (cos(LD_Angle)*Chassis_Target_Speed.X + sin(LD_Angle)*Chassis_Target_Speed.Y + Chassis_R*Chassis_Target_Speed.Z) / Motort_R;
@@ -179,7 +201,7 @@ void Chassis_t::FK_ChassisSpeed(void){
  */
 void Chassis_t::CalcSpeedWithRelativeAngle(void) {
 	// clang-format off
-	SetRelativeAttitude();
+	UpdataRelativeAttitude();
 	Chassis_Target_Speed.X = Gimbal_Target_Speed.X *  cos(Yaw_RelativeAngle) - Gimbal_Target_Speed.Y * sin(Yaw_RelativeAngle);
 	Chassis_Target_Speed.Y = Gimbal_Target_Speed.X *  sin(Yaw_RelativeAngle) + Gimbal_Target_Speed.Y * cos(Yaw_RelativeAngle);
 	// clang-format on

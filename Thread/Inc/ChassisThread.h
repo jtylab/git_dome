@@ -111,8 +111,8 @@ class Chassis_t {
 		float Prv_MaxSpinSpeed;
 
 		float Yaw_RelativeAngle;                      // 底盘相对云台坐标系的角度 (rad)(-pi,pi)
-		float Yaw_RelativeAngularVelocity;            // 云台相对底盘的角速度Yaw轴电机角速度
-		float Pitch_RelativeAngularVelocity;          // 云台相对底盘的角速度Pitch轴电机角速度
+		float Yaw_RelativeAngularVelocity;            // 云台相对底盘的Yaw轴电机角速度
+		float Pitch_RelativeAngularVelocity;          // 云台相对底盘的Pitch轴电机角速度
 
 		PID_t Prv_PID_Follow;
 
@@ -167,12 +167,13 @@ class Chassis_t {
 		}
 		void Init(RM_Motor_t* Motor_LU, RM_Motor_t* Motor_RU, RM_Motor_t* Motor_LD, RM_Motor_t* Motor_RD);
 		void SetBehaviour(ChassisBehaviour_e Behaviour);
-		void SetRelativeAttitude(void);
+		void UpdataRelativeAttitude(void);
 		void SetPowerLimitFlag(bool doPowerLimit);
 		void SetPowerLimitTarget(float Watt);
 		void SetChassisSpeed(float Speed_X, float Speed_Y, float Speed_Z);
 		void UpdateChassisAttitude(float Yaw_Angle, float Pitch_Angle, float X_Acceleration, float Y_Acceleration, float Z_Acceleration);
 		void SetGimbalSpeed(float Speed_X, float Speed_Y, float Speed_Z);
+		void UpdateGimbalAttitude(float Yaw_Angle, float Pitch_Angle, float X_Acceleration, float Y_Acceleration, float Z_Acceleration);
 		void GetChassisSpeed(float* Chassis_X, float* Chassis_Y, float* Chassis_Z);
 		void Generate(void);
 };
