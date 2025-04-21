@@ -149,7 +149,8 @@ int main(void)
   DR16_Init();
   IMU_CAN_Init();
   
-  // Motor_Init();
+
+
   RM_Motor_Init();
   //SuperCap_Init();
   Referee_Init();
@@ -165,12 +166,6 @@ InteractionThread_Init();
 ChassisThread_Init();
 
 
-
-  //  GimbalThread_Init();
-  //  BoosterThread_Init();
-//APP_ChassisBridge_Init();
-  //UI_Backend_Init();
-  //UI_Init();
   /* USER CODE END 2 */
 
   /* Init scheduler */

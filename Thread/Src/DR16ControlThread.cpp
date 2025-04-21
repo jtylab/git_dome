@@ -16,29 +16,30 @@
  * @brief DR16遥控器控制任务
  * 
  */
- void DR16ControlTask(void){
+ void DR16ControlTask(void* argument){
 
 //   ulTaskNotifyTake(pdTRUE,portMAX_DELAY);
     
 
 
     DR16_t* DR16 = DR16_Point();
+	Chassis_t* Chassis = ChassisPoint();
 
     
-    while(true){
+    while(1){
 		
 
-        switch(DR16->SW1){  // 底盘 云台
+        switch((DR16->SW1)){  // 底盘 云台
 
 
 			case REMOTE_SW_UP:
-				Chassis.SetBehaviour(CHASSIS_ZERO_FORCE);
+				Chassis->SetBehaviour(CHASSIS_ZERO_FORCE);
 
 		// 		Gimbal->SetBehaviour(GIMBAL_ZERO_FORCE);
 				break;
 			case REMOTE_SW_MID:
-				Chassis.SetBehaviour(CHASSIS_NO_FOLLOW);  // CHASSIS_FOLLOW_GIMBAL CHASSIS_NO_FOLLOW
-                Chassis.SetChassisSpeed((float)DR16->CH1 / 660.0f * Scaler_Chassis, (float)DR16->CH2 / 660.0f * Scaler_Chassis, (float)DR16->CH3 );
+				Chassis->SetBehaviour(CHASSIS_NO_FOLLOW);  // CHASSIS_FOLLOW_GIMBAL CHASSIS_NO_FOLLOW
+                Chassis->SetChassisSpeed((float)(DR16->CH1 / 660.0f * Scaler_Chassis), (float)(DR16->CH2 / 660.0f * Scaler_Chassis), (float)DR16->CH3 );
 		// 		Gimbal->SetBehaviour(GIMBAL_ZERO_FORCE); // GIMBAL_ENABLE
 		// 		Gimbal->SetSpeed(((float)DR16->CH3) / 660.0f * 0.6f * K_Gimbal, ((float)DR16->CH4) / 660.0f * 0.4f * K_Gimbal);
 				
@@ -46,8 +47,8 @@
 
 				break;
 			case REMOTE_SW_DOWN:
-				Chassis.SetBehaviour(CHASSIS_SPIN);  // CHASSIS_FOLLOW_GIMBAL CHASSIS_SPIN
-                Chassis.SetGimbalSpeed((float)DR16->CH1 / 660.0f * Scaler_Chassis, (float)DR16->CH2 / 660.0f * Scaler_Chassis, 0);
+				Chassis->SetBehaviour(CHASSIS_SPIN);  // CHASSIS_FOLLOW_GIMBAL CHASSIS_SPIN
+                Chassis->SetGimbalSpeed((float)DR16->CH1 / 660.0f * Scaler_Chassis, (float)DR16->CH2 / 660.0f * Scaler_Chassis, 0);
 		// 		Gimbal->SetBehaviour(GIMBAL_ZERO_FORCE); // GIMBAL_ENABLE
 		// 		Gimbal->SetSpeed(((float)DR16->CH3) / 660.0f * 0.6f * K_Gimbal, ((float)DR16->CH4) / 660.0f * 0.4f * K_Gimbal);
 				
@@ -55,7 +56,7 @@
 				
 				break;
 			default:
-				Chassis.SetBehaviour(CHASSIS_ZERO_FORCE);
+				Chassis->SetBehaviour(CHASSIS_ZERO_FORCE);
 				
 				// Gimbal->SetBehaviour(GIMBAL_ZERO_FORCE);
 				break;
@@ -100,16 +101,22 @@
     }
  }
 
-
+ osThreadId_t DR16ControlThread_Handle;
+ static const osThreadAttr_t DR16ControlThread_attributes = {"DR16ControlTask", 0, 0, 0, 0, 512, (osPriority_t)osPriorityNormal2};
 
 
 void DR16ControlThread_Init(void){
     // BaseType_t xRutern = pdPASS;
+    
+    taskENTER_CRITICAL();
 
-    xTaskCreate((TaskFunction_t)DR16ControlTask,"DR16ControlTask",2048,NULL,25,&DR16ControlThread_Handle);
+    // xRutern =xTaskCreate((TaskFunction_t)DR16ControlTask,"DR16ControlTask",2048,NULL,27,&DR16ControlThread_Handle);
+	DR16ControlThread_Handle = osThreadNew(DR16ControlTask, NULL, &DR16ControlThread_attributes);  // 创建底盘线程
+
+	taskEXIT_CRITICAL();
 
     // if(xRutern == pdPASS){
-    //     vTaskStartScheduler();
+    //     // vTaskStartScheduler();
     // }
     // else{
     //    while(true);

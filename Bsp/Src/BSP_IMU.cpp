@@ -22,6 +22,9 @@
 #define TwoKp	(2.0f * 0.5f)			// 2 * proportional gain
 #define TwoKi	(2.0f * 0.0f)			// 2 * integral gain
 
+
+
+
 extern "C" {}
 static unsigned int BMI088_ErrorCode = 0;
 /* Functions -----------------------------------------------------------------*/
@@ -287,6 +290,11 @@ static float Bias[3] = {0},IMU_Enable = 0;
 static float Cali[3] = {0};
 static float Angle[3] = {0};
 void IMU_Task(void *argument){
+
+
+
+	Chassis_t* Chassis = ChassisPoint();
+	
 	LPF_t LPF_Gyro[3];
 	LPF_t LPF_Accel[3];	
 	PID_t PID_Temp;
@@ -336,8 +344,8 @@ void IMU_Task(void *argument){
 			IMU.Angle_Y = Angle[1];		
 			IMU.Angle_Z = Angle[2];
             
-			Chassis.UpdateChassisAttitude((float)Angle[2], (float)Angle[1], (float)(Accel[1] + Acceldeviation_Y), -(float)(Accel[0] + Acceldeviation_X), (float)(Accel[2] + Acceldeviation_Z));
-            Chassis_IMU.UpdateAttitude((float)Angle[2], (float)Angle[1], (float)(Accel[1] + Acceldeviation_Y), -(float)(Accel[0] + Acceldeviation_X), (float)(Accel[2] + Acceldeviation_Z));
+			Chassis->UpdateChassisAttitude((float)Angle[2], (float)Angle[1], (float)(Accel[1] + Acceldeviation_Y), -(float)(Accel[0] + Acceldeviation_X), (float)(Accel[2] + Acceldeviation_Z));
+            // Chassis_IMU.UpdateAttitude((float)Angle[2], (float)Angle[1], (float)(Accel[1] + Acceldeviation_Y), -(float)(Accel[0] + Acceldeviation_X), (float)(Accel[2] + Acceldeviation_Z));
 			IMU.Temp = Temp;
 		}
 		if(FirstHeatFlag){

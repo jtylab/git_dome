@@ -17,8 +17,8 @@
 
 #define CAN_NUM 2
 
-#define CB_FUNC_NUM     6
-#define CB_FUNC_RAW_NUM 2
+#define CB_FUNC_NUM     7
+#define CB_FUNC_RAW_NUM 3
 
 
 static BSP_CAN_AllCallbackFunc_t CBF_CAN_ALL[CB_FUNC_NUM] = {0};

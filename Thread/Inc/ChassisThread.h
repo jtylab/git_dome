@@ -72,6 +72,9 @@ extern "C" {
 #define Acceldeviation_Y  0.6f
 #define Acceldeviation_Z  -9.7f
 
+#define GimbalSpeed    0      //云台6020电机PID
+#define GimbalAngle    1  
+
 #ifdef __cplusplus
 
 enum ChassisBehaviour_e {
@@ -87,22 +90,16 @@ class Chassis_t {
 		ChassisBehaviour_e Prv_Behaviour_Last;
 
 		RM_Motor_t* Prv_Motor[4];
+		RM_Motor_t* Gimbal_Motor[1];
 		PID_t Prv_PID_Motor_Speed[4];
+		PID_t Gimbal_Motor_PID[2];
+
 		float Motor_Target_Speed[4];
 		float Chassis_Currentspeed_X;
 		float Chassis_Currentspeed_Y;
 		float Chassis_Currentspeed_Z;
 
-		struct {
-			float X;
-			float Y;
-			float Z;
-		} Chassis_Target_Speed;            // 底盘坐标系速度目标向量
-		struct {
-			float X;
-			float Y;
-			float Z;
-		} Gimbal_Target_Speed;             // 云台坐标系目标速度向量
+		
 
 		
 		
@@ -110,7 +107,7 @@ class Chassis_t {
 		float Prv_Spin_Speed;  // 小陀螺转速
 		float Prv_MaxSpinSpeed;
 
-		float Yaw_RelativeAngle;                      // 底盘相对云台坐标系的角度 (rad)(-pi,pi)
+		
 		float Yaw_RelativeAngularVelocity;            // 云台相对底盘的Yaw轴电机角速度
 		float Pitch_RelativeAngularVelocity;          // 云台相对底盘的Pitch轴电机角速度
 
@@ -130,6 +127,20 @@ class Chassis_t {
 		void  IK_MotorSpeed(void);
 
 	public:
+        float Yaw_RelativeAngle;                      // 底盘相对云台坐标系的角度 (rad)(-pi,pi)
+		
+        struct {
+			float X;
+			float Y;
+			float Z;
+		} Chassis_Target_Speed;            // 底盘坐标系速度目标向量
+
+		struct {
+			float X;
+			float Y;
+			float Z;
+		} Gimbal_Target_Speed;             // 云台坐标系目标速度向量
+
         struct 
 		{
 			float Yaw_Angle;
@@ -166,6 +177,7 @@ class Chassis_t {
 			Prv_TransitionLPFq = 2.0f * pi * 0.004f * 1.0f;
 		}
 		void Init(RM_Motor_t* Motor_LU, RM_Motor_t* Motor_RU, RM_Motor_t* Motor_LD, RM_Motor_t* Motor_RD);
+		void Gimbal_Init(RM_Motor_t* Gimbal_Motor);
 		void SetBehaviour(ChassisBehaviour_e Behaviour);
 		void UpdataRelativeAttitude(void);
 		void SetPowerLimitFlag(bool doPowerLimit);
@@ -177,8 +189,8 @@ class Chassis_t {
 		void GetChassisSpeed(float* Chassis_X, float* Chassis_Y, float* Chassis_Z);
 		void Generate(void);
 };
-static Chassis_t Chassis;
 
+Chassis_t* ChassisPoint(void);
 #endif
 
 void ChassisThread_Init(void);

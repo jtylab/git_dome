@@ -13,9 +13,9 @@
 #define __DR16_H
 
 #include "main.h"
+#include "stdbool.h"
 
 #ifndef __cplusplus
-#include "stdbool.h"
 #endif
 
 #define REMOTE_SW_UP   1

@@ -28,20 +28,22 @@
 
 
 
-
  #ifdef __cplusplus
  extern "C" {
  #endif
 
 
-static TaskHandle_t DR16ControlThread_Handle = NULL;
-void DR16ControlThread_Init();
 
+
+void DR16ControlThread_Init();
 
  #ifdef __cplusplus
  }
 #endif
 
+
+
+// static TaskHandle_t DR16ControlThread_Handle = NULL;
 
 
  #endif // !DR16ControlThread_H

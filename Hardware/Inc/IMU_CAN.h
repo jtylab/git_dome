@@ -60,6 +60,8 @@ class IMU_CAN_t{
 
 static Chassis_IMU_t Chassis_IMU;
 static Gimbal_IMU_t Gimbal_IMU;
+static float Rx_Data[5];
+
 
 void IMU_CAN_Init(void);
 

@@ -13,11 +13,15 @@
 
 
  #define IMU_CAN_Port 1
- #define CAN_ID  0x300
+ #define CAN_ID  (uint32_t)0x123UL
 
  IMU_CAN_t IMU_CAN_Rx;
 
- float Rx_Data[5];
+ float A = 0;
+
+
+//  static float Rx_Data[5];
+//  static float A;
 
 void Gimbal_IMU_t::UpdateAttitude(float Yaw_Angle, float Pitch_Angle, float X_Acceleration, float Y_Acceleration, float Z_Acceleration){
 	Gimbal_IMU_t::Yaw_Angle        = Yaw_Angle;
@@ -43,19 +47,14 @@ void Chassis_IMU_t::UpdateAttitude(float Yaw_Angle, float Pitch_Angle, float X_A
   * @param Data 
   */
  void IMU_CAN_Callback(uint32_t ID, uint8_t* Data){
-	if(sizeof(Data) == 20){
-		// Gimbal_IMU.Yaw_Angle      = Data[ 0]<<24 | Data[ 1]<<16 | Data[ 2]<<8 | Data[ 3];
-	    // Gimbal_IMU.Pitch_Angle    = Data[ 4]<<24 | Data[ 5]<<16 | Data[ 6]<<8 | Data[ 7];
-	    // Gimbal_IMU.X_Acceleration = Data[ 8]<<24 | Data[ 9]<<16 | Data[10]<<8 | Data[11];
-	    // Gimbal_IMU.Y_Acceleration = Data[12]<<24 | Data[13]<<16 | Data[14]<<8 | Data[15];
-	    // Gimbal_IMU.Z_Acceleration = Data[16]<<24 | Data[17]<<16 | Data[18]<<8 | Data[19];
-		Rx_Data[0] = Data[ 0]<<24 | Data[ 1]<<16 | Data[ 2]<<8 | Data[ 3];
-	    Rx_Data[1] = Data[ 4]<<24 | Data[ 5]<<16 | Data[ 6]<<8 | Data[ 7];
-	    Rx_Data[2] = Data[ 8]<<24 | Data[ 9]<<16 | Data[10]<<8 | Data[11];
-	    Rx_Data[3] = Data[12]<<24 | Data[13]<<16 | Data[14]<<8 | Data[15];
-	    Rx_Data[4] = Data[16]<<24 | Data[17]<<16 | Data[18]<<8 | Data[19];
-
-		Chassis.UpdateGimbalAttitude(Rx_Data[0], Rx_Data[1], Rx_Data[2], Rx_Data[3], Rx_Data[4]);
+	if(ID == CAN_ID){ 
+		A = 1;
+		Chassis_t* Chassis = ChassisPoint();
+        memcpy(&Chassis->Gimbal_Presently_Attitude.Yaw_Angle,&Data[0],4);
+		memcpy(&Chassis->Gimbal_Presently_Attitude.Pitch_Angle,&Data[4],4);
+		memcpy(&Gimbal_IMU.X_Acceleration,&Data[8],4);
+		memcpy(&Gimbal_IMU.Y_Acceleration,&Data[12],4);
+		memcpy(&Gimbal_IMU.Z_Acceleration,&Data[16],4);
 	}
  }
 

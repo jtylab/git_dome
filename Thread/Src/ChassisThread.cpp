@@ -11,16 +11,16 @@
  */
 #include "ChassisThread.h"
 
-#define Lnitial_Angle_Deviation  180          //云台和底盘同向时的起始角度偏差
-#define Kf        0.007                       //相对角度前馈
-#define Smallgyro_speed      1000.0f
+#define Lnitial_Angle_Deviation  0           //云台和底盘同向时的起始角度偏差
+#define Kf        -0.007f                       //相对角度前馈
+#define Smallgyro_speed      0.0f             //小陀螺转速
 
 
-
+Chassis_t Chassis;
 
 
 /**
- * @brief 底盘初始化函数
+ * @brief 底盘电机初始化函数
  * @param LU 左上角电机
  * @param RU 右上角电机
  * @param LD 左下角电机
@@ -50,6 +50,19 @@ void Chassis_t::Init(RM_Motor_t* Motor_LU, RM_Motor_t* Motor_RU, RM_Motor_t* Mot
 	Prv_PID_PowerLimit.Init(0.005, 5e-5, 0, 0,4, 0.4, 1);
 }
 
+
+/**
+ * @brief 云台电机初始化函数
+ * 
+ * @param Gimbal_Motor 
+ */
+void Chassis_t::Gimbal_Init(RM_Motor_t* Gimbal_Motor){
+	Chassis_t::Gimbal_Motor[0] = Gimbal_Motor;
+
+	Gimbal_Motor_PID[GimbalSpeed].Init(13, 0 ,0, 2, 4, 6000, 16383);
+	Gimbal_Motor_PID[GimbalAngle].Init(13, 0 ,0, 2, 4, 6000, 16383);
+}
+
 /**
  * @brief 底盘设置行为函数
  */
@@ -63,13 +76,12 @@ void Chassis_t::SetBehaviour(ChassisBehaviour_e Behaviour) {
  * @remark 同时完成了相对角度从360到(-pi,pi)的映射
  */
 void Chassis_t::UpdataRelativeAttitude(void){
-	float RelativeAngle = Gimbal_Presently_Attitude.Yaw_Angle - (Chassis_Presently_Attitude.Yaw_Angle + Lnitial_Angle_Deviation);
+	float RelativeAngle =(Chassis_Presently_Attitude.Yaw_Angle + Lnitial_Angle_Deviation) - Gimbal_Presently_Attitude.Yaw_Angle;
 	float Gimbal_Angle_Yaw_pi = Gimbal_Presently_Attitude.Yaw_Angle * pi / 180.0f;
 	float Gimbal_Angle_Pitch_pi = Gimbal_Presently_Attitude.Pitch_Angle * pi / 180.0f;
-
-	Chassis_t::Yaw_RelativeAngularVelocity = - Chassis_Presently_Attitude.Z_Acceleration - Gimbal_Presently_Attitude.X_Acceleration * sin(Gimbal_Angle_Pitch_pi) + Gimbal_Presently_Attitude.Z_Acceleration * cos(Gimbal_Angle_Pitch_pi);
-	Chassis_t::Pitch_RelativeAngularVelocity = - sin(Gimbal_Angle_Yaw_pi) * Chassis_Presently_Attitude.X_Acceleration - cos(Gimbal_Angle_Yaw_pi) * Chassis_Presently_Attitude.Y_Acceleration + Gimbal_Presently_Attitude.Y_Acceleration;
-	Chassis_t::Yaw_RelativeAngle = (float)((RelativeAngle * pi / 180.0f) + Kf * Yaw_RelativeAngularVelocity);
+	Chassis_t::Pitch_RelativeAngularVelocity = - Chassis_Presently_Attitude.Z_Acceleration - Gimbal_Presently_Attitude.X_Acceleration * sin(Gimbal_Angle_Pitch_pi) + Gimbal_Presently_Attitude.Z_Acceleration * cos(Gimbal_Angle_Pitch_pi);
+	Chassis_t::Yaw_RelativeAngularVelocity = - sin(Gimbal_Angle_Yaw_pi) * Chassis_Presently_Attitude.X_Acceleration - cos(Gimbal_Angle_Yaw_pi) * Chassis_Presently_Attitude.Y_Acceleration + Gimbal_Presently_Attitude.Y_Acceleration;
+	Chassis_t::Yaw_RelativeAngle = -(float)((RelativeAngle + Kf * Yaw_RelativeAngularVelocity) * pi / 180.0f);
 }
 
 
@@ -216,7 +228,7 @@ void Chassis_t::CalcSpeedWithRelativeAngle(void) {
 void Chassis_t::Generate(void) {
 	float MotorSpeed_Max, SpeedLimitK = 1.0f, K_LimitByPwr = 1.0f;
 
-	switch (Prv_Behaviour) {
+	switch (Chassis.Prv_Behaviour) {
 		case CHASSIS_ZERO_FORCE:  // 底盘无力模式
 			Prv_Motor[LU]->SetCurrent(0);
 			Prv_Motor[RU]->SetCurrent(0);
@@ -313,6 +325,14 @@ static const osThreadAttr_t ChassisTask_attributes = {"ChassisTask", 0, 0, 0, 0,
  */
 void ChassisThread_Init(void) {
 	ChassisThreadHandle = osThreadNew(ChassisTask, NULL, &ChassisTask_attributes);  // 创建底盘线程
+}
+
+/**
+ * @brief 取底盘类指针
+ * @return class Chassis_t*
+ */
+Chassis_t* ChassisPoint(void) {
+	return &Chassis;
 }
 
 
