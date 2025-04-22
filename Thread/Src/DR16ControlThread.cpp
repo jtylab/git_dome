@@ -12,6 +12,9 @@
  #include "DR16ControlThread.h"
 
 
+ #define Scaler_Chassis 1000.0f  //DR16遥控器灵敏度
+
+
 /**
  * @brief DR16遥控器控制任务
  * 
@@ -20,47 +23,32 @@
 
 //   ulTaskNotifyTake(pdTRUE,portMAX_DELAY);
     
-
-
     DR16_t* DR16 = DR16_Point();
 	Chassis_t* Chassis = ChassisPoint();
 
-    
     while(1){
 		
-
         switch((DR16->SW1)){  // 底盘 云台
-
-
 			case REMOTE_SW_UP:
 				Chassis->SetBehaviour(CHASSIS_ZERO_FORCE);
-
-		// 		Gimbal->SetBehaviour(GIMBAL_ZERO_FORCE);
 				break;
+
 			case REMOTE_SW_MID:
-				Chassis->SetBehaviour(CHASSIS_NO_FOLLOW);  // CHASSIS_FOLLOW_GIMBAL CHASSIS_NO_FOLLOW
-                Chassis->SetChassisSpeed((float)(DR16->CH1 / 660.0f * Scaler_Chassis), (float)(DR16->CH2 / 660.0f * Scaler_Chassis), (float)DR16->CH3 );
-		// 		Gimbal->SetBehaviour(GIMBAL_ZERO_FORCE); // GIMBAL_ENABLE
-		// 		Gimbal->SetSpeed(((float)DR16->CH3) / 660.0f * 0.6f * K_Gimbal, ((float)DR16->CH4) / 660.0f * 0.4f * K_Gimbal);
-				
-				// Chassis->SetTrendAngle(Gimbal->GetRelativeAngle());
+				Chassis->SetBehaviour(CHASSIS_FOLLOW_GIMBAL);                   // CHASSIS_FOLLOW_GIMBAL CHASSIS_NO_FOLLOW
+                Chassis->SetGimbalTargetSpeed((float)DR16->CH1 / 660.0f * Scaler_Chassis, (float)DR16->CH2 / 660.0f * Scaler_Chassis, 0);
+				Chassis->SetGimbalTargetAngle(Gimbal_BigYaw, (float)DR16->CH3 /660.0f * 180.0f);
+				break;
 
-				break;
 			case REMOTE_SW_DOWN:
-				Chassis->SetBehaviour(CHASSIS_SPIN);  // CHASSIS_FOLLOW_GIMBAL CHASSIS_SPIN
-                Chassis->SetGimbalSpeed((float)DR16->CH1 / 660.0f * Scaler_Chassis, (float)DR16->CH2 / 660.0f * Scaler_Chassis, 0);
-		// 		Gimbal->SetBehaviour(GIMBAL_ZERO_FORCE); // GIMBAL_ENABLE
-		// 		Gimbal->SetSpeed(((float)DR16->CH3) / 660.0f * 0.6f * K_Gimbal, ((float)DR16->CH4) / 660.0f * 0.4f * K_Gimbal);
-				
-				// Chassis->SetTrendAngle(Gimbal->GetRelativeAngle());
-				
+				Chassis->SetBehaviour(CHASSIS_SPIN);                            // CHASSIS_FOLLOW_GIMBAL CHASSIS_SPIN
+                Chassis->SetGimbalTargetSpeed((float)DR16->CH1 / 660.0f * Scaler_Chassis, (float)DR16->CH2 / 660.0f * Scaler_Chassis, 0);
+				Chassis->SetGimbalTargetAngle(Gimbal_BigYaw, (float)DR16->CH3 /660.0f * 180.0f);
 				break;
+
 			default:
 				Chassis->SetBehaviour(CHASSIS_ZERO_FORCE);
-				
-				// Gimbal->SetBehaviour(GIMBAL_ZERO_FORCE);
 				break;
-		// }
+		}
 		// switch (DR16->SW2) {  // 发弹
 		// 	case REMOTE_SW_UP:
 		// 		Booster->SetState(BOOSTER_DISABLE);
@@ -95,7 +83,7 @@
 		// 		Booster->SetState(BOOSTER_DISABLE);
 		// 		Booster->SetSpeed(0);
 		// 		break;
-		}
+		// }
 
         osDelay(4);
     }

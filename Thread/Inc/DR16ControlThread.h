@@ -23,8 +23,6 @@
  #include "ChassisThread.h"
 
 
- #define Scaler_Chassis 1000.0f 
-
 
 
 

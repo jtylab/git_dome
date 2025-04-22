@@ -121,6 +121,24 @@ uint16_t RM_Motor_t::GetAngle(void) {
 }
 
 /**
+ * @brief 获取电机零度(0°~360°)的机械角度值0~8191
+ * 
+ * @return uint16_t 
+ */
+uint16_t RM_Motor_t::GetZero_MechanicalAngle(void){
+	return Zero_MechanicalAngle;
+}
+
+/**
+ * @brief Set电机零度(0°~360°)的机械角度值0~8191
+ * 
+ * @param Zero_MechanicalAngle 电机零度(0°~360°)的机械角度值0~8191
+ */
+void RM_Motor_t::SetZero_MechanicalAngle(uint16_t Zero_MechanicalAngle){
+	RM_Motor_t::Zero_MechanicalAngle = Zero_MechanicalAngle;
+}
+
+/**
  * @brief 获取电机转子温度
  * @return 电机转子温度(℃)
  */

@@ -72,59 +72,72 @@ extern "C" {
 #define Acceldeviation_Y  0.6f
 #define Acceldeviation_Z  -9.7f
 
-#define GimbalSpeed    0      //云台6020电机PID
-#define GimbalAngle    1  
+#define Gimbal_BigYawSpeed    0        //BigYaw云台6020电机PID
+#define Gimbal_BigYawAngle    1  
+#define Gimbal_SmallYawSpeed    2      //SmallYaw云台6020电机PID
+#define Gimbal_SmallYawAngle    3  
+// #define Gimbal_BigYaw    0        //云台大Yaw电机
+// #define Gimbal_SmallYaw  0        //云台小Yaw电机
 
 #ifdef __cplusplus
 
 enum ChassisBehaviour_e {
-	CHASSIS_ZERO_FORCE = 0, // 底盘无力
-	CHASSIS_NO_MOVE,        // 底盘保持不动
-	CHASSIS_NO_FOLLOW,      // 底盘不跟随云台
-	CHASSIS_FOLLOW_GIMBAL,  // 底盘跟随云台
-	CHASSIS_SPIN,           // 小陀螺
+	CHASSIS_ZERO_FORCE = 0,        // 底盘无力
+	CHASSIS_NO_MOVE,               // 底盘保持不动
+	CHASSIS_NO_FOLLOW,             // 底盘不跟随云台
+	CHASSIS_FOLLOW_GIMBAL,         // 底盘跟随云台
+	CHASSIS_SPIN,                  // 小陀螺
 };
+
+enum Gimbal_Motor_Type{
+	Gimbal_BigYaw = 0,             //大Yaw
+	Gimbal_SmallYaw,               //小Yaw
+};
+
 class Chassis_t {
 	private:
+
+	    //底盘运动状态
 		ChassisBehaviour_e Prv_Behaviour;
 		ChassisBehaviour_e Prv_Behaviour_Last;
+        
+		//底盘代码控制的电机
+		RM_Motor_t* Chassis_Motor[4];
+		RM_Motor_t* Gimbal_Motor[2];
 
-		RM_Motor_t* Prv_Motor[4];
-		RM_Motor_t* Gimbal_Motor[1];
-		PID_t Prv_PID_Motor_Speed[4];
-		PID_t Gimbal_Motor_PID[2];
+		//电机PID
+		PID_t Chasssis_Motor_PID[4];                 //只有四个电机的速度PID
+		PID_t Gimbal_Motor_PID[4];                   //分为速度PID和角度PID
 
-		float Motor_Target_Speed[4];
+        //电机目标值
+		float Motor_Target_Speed[4];                
+        float Gimbal_Target_Angle[2];
+
+		//底盘当前速度
 		float Chassis_Currentspeed_X;
 		float Chassis_Currentspeed_Y;
 		float Chassis_Currentspeed_Z;
 
-		
+        //小陀螺转速
+		float Prv_Spin_Speed;                       
 
-		
-		
-		
-		float Prv_Spin_Speed;  // 小陀螺转速
-		float Prv_MaxSpinSpeed;
-
-		
+		//云台于底盘相对角速度速度
 		float Yaw_RelativeAngularVelocity;            // 云台相对底盘的Yaw轴电机角速度
 		float Pitch_RelativeAngularVelocity;          // 云台相对底盘的Pitch轴电机角速度
 
 		PID_t Prv_PID_Follow;
-
+        PID_t Prv_PID_PowerLimit;
 		bool Prv_Flag_Transit;
-
 		bool Prv_Flag_PowerLimit;
 		float Prv_PowerLimit_Target;
-		PID_t Prv_PID_PowerLimit;
-
 		float Prv_TransitionLPFq;  // 取值 0.0~1.0
 
 	private:
 		void  CalcSpeedWithRelativeAngle(void);
 		void  FK_ChassisSpeed(void);
 		void  IK_MotorSpeed(void);
+		void  Calculate_MotorPID(void); 
+		void  BigYaw_MotorSpeed(Gimbal_Motor_Type Motor_Type);
 
 	public:
         float Yaw_RelativeAngle;                      // 底盘相对云台坐标系的角度 (rad)(-pi,pi)
@@ -169,25 +182,25 @@ class Chassis_t {
 			Chassis_Currentspeed_X = 0;
 		    Chassis_Currentspeed_Y = 0;
 		    Chassis_Currentspeed_Z = 0;
-			Prv_Spin_Speed = 0;
 			Yaw_RelativeAngle = 0;
 			Prv_Flag_PowerLimit = 0;
 			Prv_PowerLimit_Target = 60.0f;
-			Prv_MaxSpinSpeed = 6000.0f;
 			Prv_TransitionLPFq = 2.0f * pi * 0.004f * 1.0f;
 		}
-		void Init(RM_Motor_t* Motor_LU, RM_Motor_t* Motor_RU, RM_Motor_t* Motor_LD, RM_Motor_t* Motor_RD);
-		void Gimbal_Init(RM_Motor_t* Gimbal_Motor);
+		void Chassis_Init(RM_Motor_t* Motor_LU, RM_Motor_t* Motor_RU, RM_Motor_t* Motor_LD, RM_Motor_t* Motor_RD);
+		void Gimbal_Init(RM_Motor_t* Gimbal_Motor1, RM_Motor_t* Gimbal_Motor2);
 		void SetBehaviour(ChassisBehaviour_e Behaviour);
 		void UpdataRelativeAttitude(void);
 		void SetPowerLimitFlag(bool doPowerLimit);
 		void SetPowerLimitTarget(float Watt);
-		void SetChassisSpeed(float Speed_X, float Speed_Y, float Speed_Z);
+		void SetChassisTargetSpeed(float Speed_X, float Speed_Y, float Speed_Z);
 		void UpdateChassisAttitude(float Yaw_Angle, float Pitch_Angle, float X_Acceleration, float Y_Acceleration, float Z_Acceleration);
-		void SetGimbalSpeed(float Speed_X, float Speed_Y, float Speed_Z);
+		void SetGimbalTargetSpeed(float Speed_X, float Speed_Y, float Speed_Z);
+		void SetGimbalTargetAngle(Gimbal_Motor_Type MotorType, float Target_Angle);
 		void UpdateGimbalAttitude(float Yaw_Angle, float Pitch_Angle, float X_Acceleration, float Y_Acceleration, float Z_Acceleration);
 		void GetChassisSpeed(float* Chassis_X, float* Chassis_Y, float* Chassis_Z);
 		void Generate(void);
+		
 };
 
 Chassis_t* ChassisPoint(void);
