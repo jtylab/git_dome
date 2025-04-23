@@ -17,8 +17,6 @@
 
  IMU_CAN_t IMU_CAN_Rx;
 
- float A = 0;
-
 
 //  static float Rx_Data[5];
 //  static float A;
@@ -48,7 +46,6 @@ void Chassis_IMU_t::UpdateAttitude(float Yaw_Angle, float Pitch_Angle, float X_A
   */
  void IMU_CAN_Callback(uint32_t ID, uint8_t* Data){
 	if(ID == CAN_ID){ 
-		A = 1;
 		Chassis_t* Chassis = ChassisPoint();
         memcpy(&Chassis->Gimbal_Presently_Attitude.Yaw_Angle,&Data[0],4);
 		memcpy(&Chassis->Gimbal_Presently_Attitude.Pitch_Angle,&Data[4],4);

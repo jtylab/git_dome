@@ -62,13 +62,15 @@ extern "C" {
 
 #define PI 3.1415926535897932384626f
 
-#define LU_Angle    1.0f/4.0f*PI
+#define LU_Angle    1.0f/4.0f*PI                  //底盘电机于物理中心的角度
 #define RU_Angle   -1.0f/4.0f*PI
 #define LD_Angle    3.0f/4.0f*PI
 #define RD_Angle   -3.0f/4.0f*PI
-#define Chassis_R   0.25f                        //???????????????????  底盘中心到电机的半径(需要测量)
+
+#define Chassis_R   0.25f                         //???????????????????  底盘中心到电机的半径(需要测量)
 #define Motort_R    0.075f                        //???????????????????  电机中心到轮子的半径(需要测量)
-#define Acceldeviation_X  -0.01f                //静止时的加速度偏差
+
+#define Acceldeviation_X  -0.01f                 //IMU静止时的加速度偏差
 #define Acceldeviation_Y  0.6f
 #define Acceldeviation_Z  -9.7f
 
@@ -108,10 +110,14 @@ class Chassis_t {
 		//电机PID
 		PID_t Chasssis_Motor_PID[4];                 //只有四个电机的速度PID
 		PID_t Gimbal_Motor_PID[4];                   //分为速度PID和角度PID
+       
+		//模式PID
+		PID_t Chassis_Follow_PID;       
+        PID_t Prv_PID_PowerLimit;
 
         //电机目标值
 		float Motor_Target_Speed[4];                
-        
+        float Gimbal_Target_Angle[2];
 
 		//底盘当前速度
 		float Chassis_Currentspeed_X;
@@ -125,8 +131,7 @@ class Chassis_t {
 		float Yaw_RelativeAngularVelocity;            // 云台相对底盘的Yaw轴电机角速度
 		float Pitch_RelativeAngularVelocity;          // 云台相对底盘的Pitch轴电机角速度
 
-		PID_t Chassis_Follow_PID;
-        PID_t Prv_PID_PowerLimit;
+		
 		bool Prv_Flag_Transit;
 		bool Prv_Flag_PowerLimit;
 		float Prv_PowerLimit_Target;
@@ -137,11 +142,11 @@ class Chassis_t {
 		void  FK_ChassisSpeed(void);
 		void  IK_MotorSpeed(void);
 		void  Calculate_MotorPID(void); 
-		void  BigYaw_MotorSpeed(Gimbal_Motor_Type Motor_Type);
+		void  Gimbal_SelfStabilizing(Gimbal_Motor_Type Motor_Type);
 
 	public:
         float Yaw_RelativeAngle;                      // 底盘相对云台坐标系的角度 (rad)(-pi,pi)
-		float Gimbal_Target_Angle[2];
+		
         struct {
 			float X;
 			float Y;
@@ -158,7 +163,7 @@ class Chassis_t {
 		{
 			float Yaw_Angle;
 			float Pitch_Angle;                //360
-			float X_Acceleration;          //rad/s
+			float X_Acceleration;             //rad/s
 			float Y_Acceleration;
 			float Z_Acceleration;
 		} Chassis_Presently_Attitude;         //底盘坐标系相对大地坐标系的姿态信息
@@ -167,7 +172,7 @@ class Chassis_t {
 		{
 			float Yaw_Angle;
 			float Pitch_Angle;                //360
-			float X_Acceleration;           //rad/s
+			float X_Acceleration;             //rad/s
 			float Y_Acceleration;
 			float Z_Acceleration;
 		} Gimbal_Presently_Attitude;          //云台坐标系相对大地坐标系的姿态信息

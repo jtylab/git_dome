@@ -152,7 +152,6 @@ int main(void)
 
 
   RM_Motor_Init();
-  //SuperCap_Init();
   Referee_Init();
   // VTM_Init();
 
