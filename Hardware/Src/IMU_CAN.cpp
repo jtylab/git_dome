@@ -12,7 +12,7 @@
  #include "IMU_CAN.h"
 
 
- #define IMU_CAN_Port 1
+ #define IMU_CAN_Port 2
  #define CAN_ID  (uint32_t)0x123UL
 
  IMU_CAN_t IMU_CAN_Rx;

@@ -125,7 +125,7 @@ class Chassis_t {
 		float Yaw_RelativeAngularVelocity;            // 云台相对底盘的Yaw轴电机角速度
 		float Pitch_RelativeAngularVelocity;          // 云台相对底盘的Pitch轴电机角速度
 
-		PID_t Prv_PID_Follow;
+		PID_t Chassis_Follow_PID;
         PID_t Prv_PID_PowerLimit;
 		bool Prv_Flag_Transit;
 		bool Prv_Flag_PowerLimit;

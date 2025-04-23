@@ -14,6 +14,7 @@
 
 /**
  * @brief PID 控制器初始化
+ * 
  * @param Kp PID比例系数 Kp
  * @param Ki PID积分系数 Ki
  * @param Kd PID微分系数 Kd
@@ -21,10 +22,10 @@
  * @param T 采样周期 (单位ms)
  * @param Limit_Integral 积分限幅 (不使用置为 -1)
  * @param Limit_Output   输出限幅 (不使用置为 -1)
- * @param DeadzoneComp   双向死区补偿值 (不使用置 0)
- * @param DeadzoneGate   双向死区补偿门限 (不使用置为 -1)
+ * @param Deadzone       双向死区值 (不使用置 0)
+ * 
  */
-void PID_t::Init(float Kp, float Ki, float Kd, float Kf,float T, float Limit_Integral, float Limit_Output, float DeadzoneComp, float DeadzoneGate) {
+void PID_t::Init(float Kp, float Ki, float Kd, float Kf,float T, float Limit_Integral, float Limit_Output, float Deadzone) {
 	Private_P = Kp;
 	Private_I = Ki;
 	Private_D = Kd;
@@ -33,8 +34,7 @@ void PID_t::Init(float Kp, float Ki, float Kd, float Kf,float T, float Limit_Int
 	Private_LPF_q = 2.0f * pi * (Private_T / 1000.0f) * 5.0f;  // 一阶低通的截止频率为 30Hz
 	Private_Limit_Integral = Limit_Integral;
 	Private_Limit_Output = Limit_Output;
-	Private_DeadzoneComp = DeadzoneComp;
-	Private_DeadzoneGate = DeadzoneGate;
+	Private_Deadzone = Deadzone;
 }
 
 /**
@@ -50,8 +50,9 @@ float PID_t::Generate(float Input, float Target) {
 	float FFC_Kf = TargetFeedforward.GetKf();
 	float Error;   // 误差
 	float Differ;  // 微分项
-	float Deadzone = 0.0f;
 	Error = Target - Input;                                                                                   // 当前误差等于目标值减去当前值
+
+
 	if ((Private_I != 0) && (Private_T != 0)) {                                                               // 检查积分项
 		Private_Integral += Private_I * Private_T * Error;                                                    // 计算积分项
 		if (Private_Limit_Integral >= 0) {                                                                    // 限幅小于零表示不限幅
@@ -71,14 +72,7 @@ float PID_t::Generate(float Input, float Target) {
 			Private_Last_Differ = Differ;  // 更新微分项记录
 		}
 	}
-	if (Private_DeadzoneComp > 0 && (Private_DeadzoneGate >= 0)) {
-		if (Target > Private_DeadzoneGate) {
-			Deadzone = Private_DeadzoneComp;
-		} else if (Target < -Private_DeadzoneGate) {
-			Deadzone = -Private_DeadzoneComp;
-		}
-	}
-	Private_Output = Private_P * Error + Private_Integral + Private_D * Differ + FFC_Kf * Target_ROC + Deadzone;
+	Private_Output = Private_P * Error + Private_Integral + Private_D * Differ + FFC_Kf * Target_ROC ;
 	if (Private_Limit_Output >= 0) {                                                              // 限幅小于零表示不限幅
 		Private_Output = LimitBoth(Private_Output, Private_Limit_Output, -Private_Limit_Output);  // 输出值限幅
 	}
@@ -96,8 +90,12 @@ float PID_t::Generate(float Input, float Target) {
 float PID_t::GenerateRing(float Input, float Target, float Perimeter) {
 	float Error;   // 误差
 	float Differ;  // 微分项
-	float Deadzone = 0.0f;
 	Error = Target - Input;       // 当前误差等于目标值减去当前值
+
+    if(abs(Error) <= Private_Deadzone){
+		Error = 0;
+	}
+
 	if (Error > Perimeter / 2) {  // 处理连续旋转的相对误差
 		Error -= Perimeter;
 	} else if (Error < (-Perimeter) / 2) {
@@ -122,14 +120,7 @@ float PID_t::GenerateRing(float Input, float Target, float Perimeter) {
 			Private_Last_Differ = Differ;  // 更新微分项记录
 		}
 	}
-	if (Private_DeadzoneComp > 0 && (Private_DeadzoneGate >= 0)) {
-		if (Target > Private_DeadzoneGate) {
-			Deadzone = Private_DeadzoneComp;
-		} else if (Target < -Private_DeadzoneGate) {
-			Deadzone = -Private_DeadzoneComp;
-		}
-	}
-	Private_Output = Private_P * Error + Private_Integral + Private_D * Differ + Deadzone;
+	Private_Output = Private_P * Error + Private_Integral + Private_D * Differ ;
 	if (Private_Limit_Output >= 0) {                                                              // 限幅小于零表示不限幅
 		Private_Output = LimitBoth(Private_Output, Private_Limit_Output, -Private_Limit_Output);  // 输出值限幅
 	}
@@ -160,13 +151,13 @@ void PID_t::SetLimit(float Limit_Integral, float Limit_Output) {
 }
 
 /**
- * @brief PID 控制器设置双向死区补偿
- * @param DeadzoneComp 双向死区补偿值 (不使用置 0)
- * @param DeadzoneGate 双向死区补偿门限 (不使用置为 -1)
+ * @brief PID 控制器设置双向死区
+ * @param Deadzone 双向死区值 (不使用置 0)
+ * 
  */
-void PID_t::SetDeadzoneComp(float DeadzoneComp, float DeadzoneGate) {
-	Private_DeadzoneComp = DeadzoneComp;
-	Private_DeadzoneGate = DeadzoneGate;
+void PID_t::SetDeadzone(float Deadzone) {
+	Private_Deadzone = Deadzone;
+
 }
 
 /**

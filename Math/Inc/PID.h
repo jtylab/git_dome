@@ -32,8 +32,8 @@ class PID_t {
 		float Private_Limit_Integral;  // 积分限幅
 		float Private_Limit_Output;    // 输出限幅
 
-		float Private_DeadzoneComp;  // 死区补偿值
-		float Private_DeadzoneGate;  // 死区门限
+		float Private_Deadzone;    // 死区值
+
 
 		float Private_Integral;
 		float Private_Last_Error;
@@ -56,8 +56,7 @@ class PID_t {
 			Private_Limit_Integral = -1;
 			Private_Limit_Output = -1;
 
-			Private_DeadzoneComp = 0;
-			Private_DeadzoneGate = -1;
+			Private_Deadzone = 0;
 
 			Private_Integral = 0;
 			Private_Last_Error = 0;
@@ -67,12 +66,12 @@ class PID_t {
 
 			Private_Output = 0;
 		}
-		void Init(float Kp, float Ki, float Kd, float Kf,float T, float Limit_Integral, float Limit_Output, float DeadzoneComp = 0, float DeadzoneGate = -1);
+		void Init(float Kp, float Ki, float Kd, float Kf,float T, float Limit_Integral, float Limit_Output, float Deadzone = 0);
 		float GenerateRing(float Input, float Target, float Perimeter);
 		float Generate(float Input, float Target);
 		void SetPID(float P, float I, float D);
 		void SetLimit(float Limit_Integral, float Limit_Output);
-		void SetDeadzoneComp(float DeadzoneComp, float DeadzoneGate);
+		void SetDeadzone(float Deadzone);
 		void ClearIntegral(void);
 		float GetIntegral(void);
 		float GetOutput(void);
