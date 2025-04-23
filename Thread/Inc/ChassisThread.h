@@ -111,7 +111,7 @@ class Chassis_t {
 
         //电机目标值
 		float Motor_Target_Speed[4];                
-        float Gimbal_Target_Angle[2];
+        
 
 		//底盘当前速度
 		float Chassis_Currentspeed_X;
@@ -132,7 +132,7 @@ class Chassis_t {
 		float Prv_PowerLimit_Target;
 		float Prv_TransitionLPFq;  // 取值 0.0~1.0
 
-	private:
+	public:
 		void  CalcSpeedWithRelativeAngle(void);
 		void  FK_ChassisSpeed(void);
 		void  IK_MotorSpeed(void);
@@ -141,7 +141,7 @@ class Chassis_t {
 
 	public:
         float Yaw_RelativeAngle;                      // 底盘相对云台坐标系的角度 (rad)(-pi,pi)
-		
+		float Gimbal_Target_Angle[2];
         struct {
 			float X;
 			float Y;

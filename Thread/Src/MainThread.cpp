@@ -28,6 +28,7 @@ void MainTask(void *argument) {
     BSP_IMU_Start(-0.0041016,0.00223481,-0.000858274);
 
     Chassis_t* Chassis = ChassisPoint();
+	DR16_t* DR16 = DR16_Point();
 // 	Booster_t *Booster = BoosterPoint();
 
 	// float K_Gimbal = 1.0;
@@ -41,15 +42,17 @@ void MainTask(void *argument) {
 
 	osDelay(3500);
 	
-	
-	
 	while (1) {
-		 osDelay(4);
+		Chassis->UpdataRelativeAttitude();
+		if(DR16->SW1 != REMOTE_SW_UP){
+			Chassis->BigYaw_MotorSpeed(Gimbal_BigYaw);
+		}
+		 osDelay(3);
 	}
 }
 
 osThreadId_t MainThreadHandle;
-static const osThreadAttr_t MainTask_attributes = {"MainTask", 0, 0, 0, 0, 2048, (osPriority_t)osPriorityNormal};
+static const osThreadAttr_t MainTask_attributes = {"MainTask", 0, 0, 0, 0, 2048, (osPriority_t)osPriorityNormal7};
 /**
  * @brief 线程初始化
  */

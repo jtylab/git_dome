@@ -12,8 +12,8 @@
 #include "ChassisThread.h"
 
 #define Lnitial_Angle_Deviation  0           //云台和底盘同向时的起始角度偏差
-#define Kf        0.007f                       //相对角度前馈
-#define Smallgyro_speed     100.0f             //小陀螺转速
+#define Kf        0.0007f                       //相对角度前馈
+#define Smallgyro_speed     1500.0f             //小陀螺转速
 
 
 Chassis_t Chassis;
@@ -42,7 +42,7 @@ void Chassis_t::Chassis_Init(RM_Motor_t* Motor_LU, RM_Motor_t* Motor_RU, RM_Moto
 	// Prv_PID_Motor_Speed[2].Init(1.52000600800904,2.68508859420655,0.0101460207730336,0,4,6000, 16383);
 	// Prv_PID_Motor_Speed[3].Init(1.52000600800904,2.68508859420655,0.0101460207730336,0,4,6000, 16383);
 
-	Chassis_Follow_PID.Init(-1000, 0, 0,0, 4 ,3000, 16383, pi/12.0f);
+	Chassis_Follow_PID.Init(-500, 0, 0,1000, 4,3000, 16383, pi/12.0f);
 	Prv_PID_PowerLimit.Init(0.005, 5e-5, 0, 0,4, 0.4, 1);
 }
 
@@ -58,9 +58,10 @@ void Chassis_t::Gimbal_Init(RM_Motor_t* Gimbal_Motor1, RM_Motor_t* Gimbal_Motor2
 
 	Gimbal_Motor[Gimbal_BigYaw]  ->SetZero_MechanicalAngle(Gimbal_Motor[Gimbal_BigYaw]  ->GetAngle());
 	// Gimbal_Motor[Gimbal_SmallYaw]->SetZero_MechanicalAngle(Gimbal_Motor[Gimbal_SmallYaw]->GetAngle());
-    
-	Gimbal_Motor_PID[Gimbal_BigYawSpeed].Init(1, 0 ,1, 0, 4, 6000, 500);
-	Gimbal_Motor_PID[Gimbal_BigYawAngle].Init(10, 0 ,1, 0, 4, 6000, 25000);
+
+    Gimbal_Motor_PID[Gimbal_BigYawAngle].Init(8, 0 ,4, 0, 2, 4000, -1,4);
+	Gimbal_Motor_PID[Gimbal_BigYawSpeed].Init(300, 0 ,40, 0, 2, 6000,19000);
+	
 
 	// Gimbal_Motor_PID[Gimbal_SmallYawSpeed].Init(13, 0 ,0, 2, 4, 6000, 16383);
 	// Gimbal_Motor_PID[Gimbal_SmallYawAngle].Init(13, 0 ,0, 2, 4, 6000, 16383);
@@ -80,7 +81,7 @@ void Chassis_t::SetBehaviour(ChassisBehaviour_e Behaviour) {
  */
 void Chassis_t::UpdataRelativeAttitude(void){
 	float RelativeAngle =(Chassis_Presently_Attitude.Yaw_Angle + Lnitial_Angle_Deviation) - Gimbal_Presently_Attitude.Yaw_Angle;
-	if(abs(RelativeAngle) <= 5){RelativeAngle = 0;}
+	if(abs(RelativeAngle) <= 3){RelativeAngle = 0;}
 
 	float Gimbal_Angle_Yaw_pi = Gimbal_Presently_Attitude.Yaw_Angle * pi / 180.0f;
 	float Gimbal_Angle_Pitch_pi = Gimbal_Presently_Attitude.Pitch_Angle * pi / 180.0f;
@@ -218,7 +219,6 @@ void Chassis_t::FK_ChassisSpeed(void){
  */
 void Chassis_t::CalcSpeedWithRelativeAngle(void) {
 	// clang-format off
-	UpdataRelativeAttitude();
 	Chassis_Target_Speed.X = Gimbal_Target_Speed.X *  cos(Yaw_RelativeAngle) - Gimbal_Target_Speed.Y * sin(Yaw_RelativeAngle);
 	Chassis_Target_Speed.Y = Gimbal_Target_Speed.X *  sin(Yaw_RelativeAngle) + Gimbal_Target_Speed.Y * cos(Yaw_RelativeAngle);
 	// clang-format on
@@ -234,9 +234,14 @@ void Chassis_t::SetGimbalTargetAngle(Gimbal_Motor_Type MotorType, float Target_A
 	switch (MotorType)
 	{
 	case Gimbal_BigYaw:
-	    Gimbal_Target_Angle[Gimbal_BigYaw] = Target_Angle;
-		break;
-	
+	    if(abs(Chassis.Gimbal_Presently_Attitude.Yaw_Angle - Target_Angle) <= 5){
+			break;
+		}
+		else{
+			Gimbal_Target_Angle[Gimbal_BigYaw] = -Target_Angle;
+			break;
+		}
+	    
     case Gimbal_SmallYaw:
 		Gimbal_Target_Angle[Gimbal_SmallYaw] = Target_Angle;
 		break;
@@ -254,7 +259,7 @@ void Chassis_t::BigYaw_MotorSpeed(Gimbal_Motor_Type Motor_Type){
 	case Gimbal_BigYaw:
 		// float BigYawTargetMechanicalAngle = Gimbal_Motor[Gimbal_BigYaw]->GetZero_MechanicalAngle() + (Gimbal_Target_Angle[Gimbal_BigYaw] - Chassis.Gimbal_Presently_Attitude.Yaw_Angle) * Unit_Angle;       //   TargetMechanicalAngle = (0,8191)
 	    Gimbal_Motor_PID[Gimbal_BigYawAngle].Generate(Chassis.Gimbal_Presently_Attitude.Yaw_Angle,Gimbal_Target_Angle[Gimbal_BigYaw]);
-	    Gimbal_Motor_PID[Gimbal_BigYawSpeed].Generate(Gimbal_Motor[Gimbal_BigYaw]->GetSpeed(),Gimbal_Motor_PID[Gimbal_BigYawAngle].GetOutput());
+	    Gimbal_Motor_PID[Gimbal_BigYawSpeed].Generate(Gimbal_Motor[Gimbal_BigYaw]->GetSpeed(),-Gimbal_Motor_PID[Gimbal_BigYawAngle].GetOutput());
 	    Gimbal_Motor[Gimbal_BigYaw]->SetCurrent(Gimbal_Motor_PID[Gimbal_BigYawSpeed].GetOutput());
 		break;
 	
@@ -348,14 +353,14 @@ void Chassis_t::Generate(void) {
 				FK_ChassisSpeed();
 				CalcSpeedWithRelativeAngle();
 			    IK_MotorSpeed();
-			    BigYaw_MotorSpeed(Gimbal_BigYaw);
+				// BigYaw_MotorSpeed(Gimbal_BigYaw);
 			}
 			else{
-				Chassis_Target_Speed.Z = Chassis_Follow_PID.GenerateRing(Yaw_RelativeAngle, 0, 2.0f * PI * Chassis_R);  // 跟随
+				Chassis_Target_Speed.Z = -Chassis_Follow_PID.Generate(Yaw_RelativeAngle, 0);  // 跟随
 				FK_ChassisSpeed();
 				CalcSpeedWithRelativeAngle();
 			    IK_MotorSpeed();
-			    BigYaw_MotorSpeed(Gimbal_BigYaw);
+				// Chassis->BigYaw_MotorSpeed(Gimbal_BigYaw);
 			}
 			Prv_Behaviour_Last = CHASSIS_FOLLOW_GIMBAL;
 			break;
@@ -365,7 +370,7 @@ void Chassis_t::Generate(void) {
 			FK_ChassisSpeed();
 			CalcSpeedWithRelativeAngle();
 			IK_MotorSpeed();
-			BigYaw_MotorSpeed(Gimbal_BigYaw);
+			// BigYaw_MotorSpeed(Gimbal_BigYaw);
 			Prv_Behaviour_Last = CHASSIS_SPIN;
 			break;
 	}
