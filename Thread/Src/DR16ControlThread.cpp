@@ -38,13 +38,13 @@
 			case REMOTE_SW_MID:
 				Chassis->SetBehaviour(CHASSIS_FOLLOW_GIMBAL);                   // CHASSIS_FOLLOW_GIMBAL CHASSIS_NO_FOLLOW
                 Chassis->SetGimbalTargetSpeed((float)DR16->CH1 / 660.0f * Scaler_Chassis, (float)DR16->CH2 / 660.0f * Scaler_Chassis, 0);
-				Chassis->SetGimbalTargetAngle(Gimbal_BigYaw, (float)DR16->CH3 /660.0f * 150.0f);
+				Chassis->SetGimbalTargetAngle(Gimbal_BigYaw, Speed_Control,(float)DR16->CH3 /660.0f * 150.0f);            
 				break;
-
+ 
 			case REMOTE_SW_DOWN:
 				Chassis->SetBehaviour(CHASSIS_SPIN);                            // CHASSIS_FOLLOW_GIMBAL CHASSIS_SPIN
                 Chassis->SetGimbalTargetSpeed((float)DR16->CH1 / 660.0f * Scaler_Chassis, (float)DR16->CH2 / 660.0f * Scaler_Chassis, 0);
-				Chassis->SetGimbalTargetAngle(Gimbal_BigYaw, (float)DR16->CH3 /660.0f * 150.0f);
+				Chassis->SetGimbalTargetAngle(Gimbal_BigYaw, Speed_Control,(float)DR16->CH3 /660.0f * 150.0f);            
 				break;
 
 			default:

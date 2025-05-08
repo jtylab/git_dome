@@ -156,10 +156,11 @@ int main(void)
   // VTM_Init();
 
   // PM_Init();
-
-DR16ControlThread_Init();
   
 MainThread_Init();
+DR16ControlThread_Init();
+  
+
 InteractionThread_Init();
   // DebuggerThread_Init();
 ChassisThread_Init();

@@ -67,7 +67,7 @@ extern "C" {
 #define LD_Angle    3.0f/4.0f*PI
 #define RD_Angle   -3.0f/4.0f*PI
 
-#define Chassis_R   0.25f                         //???????????????????  底盘中心到电机的半径(需要测量)
+#define Chassis_R   0.25f                         //???????????????????  底盘中心到电机的半径(需要测量)C   
 #define Motort_R    0.075f                        //???????????????????  电机中心到轮子的半径(需要测量)
 
 #define Acceldeviation_X  -0.01f                 //IMU静止时的加速度偏差
@@ -79,7 +79,10 @@ extern "C" {
 #define Gimbal_SmallYawSpeed    2      //SmallYaw云台6020电机PID
 #define Gimbal_SmallYawAngle    3  
 // #define Gimbal_BigYaw    0        //云台大Yaw电机
-// #define Gimbal_SmallYaw  0        //云台小Yaw电机
+// #define Gimbal_SmallYaw  0        //云台小Yaw电机 
+
+static int Lnitial_Angle_Deviation = 0;              //云台和底盘同向时的起始角度偏差
+
 
 #ifdef __cplusplus
 
@@ -94,6 +97,11 @@ enum ChassisBehaviour_e {
 enum Gimbal_Motor_Type{
 	Gimbal_BigYaw = 0,             //大Yaw
 	Gimbal_SmallYaw,               //小Yaw
+};
+
+enum Gimbal_Control_Type{
+	Position_Control = 0,          //位控
+	Speed_Control,                 //速控
 };
 
 class Chassis_t {
@@ -201,10 +209,11 @@ class Chassis_t {
 		void SetChassisTargetSpeed(float Speed_X, float Speed_Y, float Speed_Z);
 		void UpdateChassisAttitude(float Yaw_Angle, float Pitch_Angle, float X_Acceleration, float Y_Acceleration, float Z_Acceleration);
 		void SetGimbalTargetSpeed(float Speed_X, float Speed_Y, float Speed_Z);
-		void SetGimbalTargetAngle(Gimbal_Motor_Type MotorType, float Target_Angle);
+		void SetGimbalTargetAngle(Gimbal_Motor_Type MotorType,Gimbal_Control_Type Control_Type, float Target_Angle);
 		void UpdateGimbalAttitude(float Yaw_Angle, float Pitch_Angle, float X_Acceleration, float Y_Acceleration, float Z_Acceleration);
 		void GetChassisSpeed(float* Chassis_X, float* Chassis_Y, float* Chassis_Z);
 		void Generate(void);
+		void GimbalAngle_Calibration(void);
 		
 };
 
