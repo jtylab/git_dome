@@ -1,17 +1,18 @@
 /**
- * @file CloudPlatform.h
+ * @file K230_Uart.h
  * @author jiang
- * @brief 云台
+ * @brief 视觉通信
  * @version 0.1
- * @date 2025-07-03
+ * @date 2025-07-04
  * 
  * @copyright Copyright (c) 2025
  * 
  */
 
- #ifndef CloudPlatform_H
- #define CloudPlatform_H
+ #ifndef K230_Uart_H
+ #define K230_Uart_H
 
+ 
 #include "main.h"
 #include "cmsis_os.h"
 #include "dma.h"
@@ -20,7 +21,7 @@
 #include "gpio.h"
 
 
-void CloudPlatformTask_Init(void);
 
+void K230_UartTask_Init(void);
  
- #endif // !1
+ #endif // !

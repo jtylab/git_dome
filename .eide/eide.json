@@ -34,7 +34,16 @@
                     "path": "Core/Src/gpio.c"
                   },
                   {
+                    "path": "Core/Src/freertos.c"
+                  },
+                  {
+                    "path": "Core/Src/dma.c"
+                  },
+                  {
                     "path": "Core/Src/tim.c"
+                  },
+                  {
+                    "path": "Core/Src/usart.c"
                   },
                   {
                     "path": "Core/Src/stm32f4xx_it.c"
@@ -103,6 +112,9 @@
               },
               {
                 "path": "Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_exti.c"
+              },
+              {
+                "path": "Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c"
               }
             ],
             "folders": []
@@ -126,6 +138,48 @@
           }
         ],
         "folders": []
+      },
+      {
+        "name": "Middlewares",
+        "files": [],
+        "folders": [
+          {
+            "name": "FreeRTOS",
+            "files": [
+              {
+                "path": "Middlewares/Third_Party/FreeRTOS/Source/croutine.c"
+              },
+              {
+                "path": "Middlewares/Third_Party/FreeRTOS/Source/event_groups.c"
+              },
+              {
+                "path": "Middlewares/Third_Party/FreeRTOS/Source/list.c"
+              },
+              {
+                "path": "Middlewares/Third_Party/FreeRTOS/Source/queue.c"
+              },
+              {
+                "path": "Middlewares/Third_Party/FreeRTOS/Source/stream_buffer.c"
+              },
+              {
+                "path": "Middlewares/Third_Party/FreeRTOS/Source/tasks.c"
+              },
+              {
+                "path": "Middlewares/Third_Party/FreeRTOS/Source/timers.c"
+              },
+              {
+                "path": "Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os2.c"
+              },
+              {
+                "path": "Middlewares/Third_Party/FreeRTOS/Source/portable/MemMang/heap_4.c"
+              },
+              {
+                "path": "Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F/port.c"
+              }
+            ],
+            "folders": []
+          }
+        ]
       },
       {
         "name": "::CMSIS",
@@ -286,6 +340,9 @@
           "Drivers/CMSIS/Device/ST/STM32F4xx/Include",
           "Drivers/CMSIS/Include",
           "Task/Inc",
+          "Middlewares/Third_Party/FreeRTOS/Source/include",
+          "Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2",
+          "Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F",
           "MDK-ARM/RTE/_TiCup-23"
         ],
         "libList": [],
