@@ -27,6 +27,9 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
+#include "CloudPlatform.h"
+#include "K230_Uart.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -95,7 +98,10 @@ int main(void)
   MX_TIM1_Init();
   MX_UART4_Init();
   /* USER CODE BEGIN 2 */
-HAL_TIM_PWM_Start(&htim1,TIM_CHANNEL_1);
+
+  CloudPlatformTask_Init();
+  K230_UartTask_Init();
+
   /* USER CODE END 2 */
 
   /* Init scheduler */
@@ -116,9 +122,6 @@ HAL_TIM_PWM_Start(&htim1,TIM_CHANNEL_1);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    __HAL_TIM_SET_COMPARE(&htim1,TIM_CHANNEL_1,1500);
-    
-    HAL_GPIO_WritePin(GPIOA,GPIO_PIN_4,GPIO_PIN_SET);
     
   }
   /* USER CODE END 3 */

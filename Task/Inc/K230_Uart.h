@@ -20,7 +20,10 @@
 #include "usart.h"
 #include "gpio.h"
 
+#include "CloudPlatform.h"
 
+
+static __attribute__((aligned(4))) uint8_t Coordinate_RxData[25];
 
 void K230_UartTask_Init(void);
  

@@ -135,6 +135,9 @@
         "files": [
           {
             "path": "Task/Src/CloudPlatform.c"
+          },
+          {
+            "path": "Task/Src/K230_uart.c"
           }
         ],
         "folders": []

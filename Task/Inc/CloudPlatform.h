@@ -19,8 +19,24 @@
 #include "usart.h"
 #include "gpio.h"
 
+static struct Coordinate_t{
+    int LU_x;
+    int LU_y;
+    int RU_x;
+    int RU_y;
+    int RD_x;
+    int RD_y;
+    int LD_x;
+    int LD_y;
+};
 
+struct route_t{
+    int x;
+    int y;
+};
+int abs(int x);
+void Key_detect(void);
 void CloudPlatformTask_Init(void);
+struct Coordinate_t* GetCoordinateport(void);
 
- 
  #endif // !1

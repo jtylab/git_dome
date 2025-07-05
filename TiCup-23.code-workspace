@@ -4,11 +4,6 @@
             "path": "."
         }
     ],
-    "settings": {
-        "files.associations": {
-            "cloudplatform.h": "c",
-            "k230_uart.h": "c"
-        }
-    },
+    "settings": {},
     "extensions": {}
 }

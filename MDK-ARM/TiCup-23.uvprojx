@@ -747,6 +747,11 @@
               <FileType>1</FileType>
               <FilePath>..\Task\Src\CloudPlatform.c</FilePath>
             </File>
+            <File>
+              <FileName>K230_uart.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Task\Src\K230_uart.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
