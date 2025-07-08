@@ -37,7 +37,7 @@ class RM_Motor_t {
 
 		int16_t prv_TorqueCurrent;          // 实际转矩电流 I_e ，其中 U_e * I_e = T_e * Ω 
 		int16_t prv_Speed;                  // 转子转速 n (RPM)
-		uint16_t Zero_MechanicalAngle;      //领度转子机械角度 0~8191
+		uint16_t Zero_MechanicalAngle;      //机械零点 0~8191
 		uint16_t prv_Angle;                 // 转子机械角度 0~8191 (0°~360°)
 		uint8_t prv_Temp;                   // 电机温度
 		// int16_t prv_RecvNull;

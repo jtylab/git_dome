@@ -33,10 +33,13 @@
 #define Acceldeviation_Y  0.6f
 #define Acceldeviation_Z  -9.7f
 
-#define Gimbal_BigYawSpeed    0        //BigYaw云台6020电机PID
-#define Gimbal_BigYawAngle    1  
-#define Gimbal_SmallYawSpeed    2      //SmallYaw云台6020电机PID
-#define Gimbal_SmallYawAngle    3  
+
+#define Gimbal_BigYawAngle    0  
+#define Gimbal_BigYawSpeed    1        //BigYaw云台6020电机PID
+
+#define Gimbal_SmallYawAngle    2  
+#define Gimbal_SmallYawSpeed    3      //SmallYaw云台6020电机PID
+
 
 
 #define Kf        0.0007f                       //底盘相对角度前馈可以使小陀螺模式时做到X，Y线速度方向不变

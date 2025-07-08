@@ -73,6 +73,7 @@ enum Gimbal_Motor_Type{
 	Gimbal_SmallYawMotor,               //小Yaw
 };
 
+
 enum Gimbal_Control_Type{
 	Position_Control = 0,          //位控
 	Speed_Control,                 //速控
@@ -82,8 +83,8 @@ class Chassis_t {
 	private:
 
 	    //底盘运动状态
-		ChassisBehaviour_e Prv_Behaviour;
-		ChassisBehaviour_e Prv_Behaviour_Last;
+		ChassisBehaviour_e 	ChassisBehaviour;
+		ChassisBehaviour_e  ChassisBehaviour_Last;
         
 		//底盘代码控制的电机
 		RM_Motor_t* Chassis_Motor[4];
@@ -181,7 +182,7 @@ class Chassis_t {
 		void Gimbal_Init(RM_Motor_t* Gimbal_Motor1, RM_Motor_t* Gimbal_Motor2);
 		void SetBehaviour(ChassisBehaviour_e Behaviour);
 		void UpdataRelativeAttitude_Gyroscope(void);
-		void UpdataRelativeAttitude_Mechanical(void)
+		void UpdataRelativeAttitude_Mechanical(void);
 		void SetPowerLimitFlag(bool doPowerLimit);
 		void SetPowerLimitTarget(float Watt);
 		void SetChassisTargetSpeed(float Speed_X, float Speed_Y, float Speed_Z);

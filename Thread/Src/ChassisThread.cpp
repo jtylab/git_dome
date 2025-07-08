@@ -28,10 +28,10 @@ void Chassis_t::Chassis_Init(RM_Motor_t* Motor_LU, RM_Motor_t* Motor_RU, RM_Moto
 	Chassis_t::Chassis_Motor[LD] = Motor_LD;
 	Chassis_t::Chassis_Motor[RD] = Motor_RD;
 
-	Chasssis_Motor_PID[0].Init(13, 0 ,0, 2, 4, 6000, 16383);
-	Chasssis_Motor_PID[1].Init(13, 0, 0, 2, 4, 6000, 16383);
-	Chasssis_Motor_PID[2].Init(13, 0, 0, 2, 4, 6000, 16383);
-	Chasssis_Motor_PID[3].Init(13, 0, 0, 2, 4, 6000, 16383);
+	Chasssis_Motor_PID[LU].Init(13, 0 ,0, 2, 4, 6000, 16383);
+	Chasssis_Motor_PID[RU].Init(13, 0, 0, 2, 4, 6000, 16383);
+	Chasssis_Motor_PID[LD].Init(13, 0, 0, 2, 4, 6000, 16383);
+	Chasssis_Motor_PID[RD].Init(13, 0, 0, 2, 4, 6000, 16383);
 
 	Chassis_Follow_PID.Init(-1000, 0, 0,0, 4,3000, 16383, 0);
 
@@ -119,7 +119,7 @@ void Chassis_t::GimbalAngle_Calibration_Sport(void){
  * @brief 底盘设置行为函数
  */
 void Chassis_t::SetBehaviour(ChassisBehaviour_e Behaviour) {
-	Prv_Behaviour = Behaviour;
+	ChassisBehaviour = Behaviour;
 }
 
 /**
@@ -148,7 +148,7 @@ void Chassis_t::UpdataRelativeAttitude_Gyroscope(void){
  */
 void Chassis_t::UpdataRelativeAttitude_Mechanical(void){
 
-	float RelativeAngle = Gimbal_Motor[Gimbal_BigYawMotor]->GetAngle() * 1.0f - BigGimbal_ZeroMechanicalAngle * 1.0f;
+	float RelativeAngle = Gimbal_Motor[Gimbal_BigYawMotor]->GetAngle() * 1.0f - Gimbal_Motor[Gimbal_BigYawMotor]->GetZero_MechanicalAngle() * 1.0f;
 	RelativeAngle = (RelativeAngle * 360.0f) / 8192.0f;
 
 	Chassis_t::Yaw_RelativeAngle = -(float)((RelativeAngle * pi / 180.0f));
@@ -418,7 +418,7 @@ void  Chassis_t::Calculate_MotorPID(void){
  * @caller ChassisTask
  */
 void Chassis_t::Generate(void) {
-	switch (Chassis.Prv_Behaviour) {
+	switch (ChassisBehaviour) {
 		case CHASSIS_ZERO_FORCE:  // 底盘无力模式
 		    Chassis_Motor[LU]->SetCurrent(0);
 		    Chassis_Motor[RU]->SetCurrent(0);
@@ -426,7 +426,7 @@ void Chassis_t::Generate(void) {
 		    Chassis_Motor[RD]->SetCurrent(0);
 			Gimbal_Motor[Gimbal_BigYawAngle]->SetCurrent(0);
 			Gimbal_Motor[Gimbal_BigYawSpeed]->SetCurrent(0);
-			Prv_Behaviour_Last = CHASSIS_ZERO_FORCE;
+			ChassisBehaviour_Last = CHASSIS_ZERO_FORCE;
 			return;                  // 无力的关键
 			        
 		case CHASSIS_NO_MOVE:  // 底盘不动模式
@@ -434,17 +434,17 @@ void Chassis_t::Generate(void) {
 		    Motor_Target_Speed[RU] = 0;
 		    Motor_Target_Speed[LD] = 0;
 		    Motor_Target_Speed[RD] = 0;
-			Prv_Behaviour_Last = CHASSIS_NO_MOVE;
+			ChassisBehaviour_Last = CHASSIS_NO_MOVE;
 			break;
 
 		case CHASSIS_NO_FOLLOW:                      // 底盘不跟随云台
 			IK_MotorSpeed();
-			Prv_Behaviour_Last = CHASSIS_NO_FOLLOW;
+			ChassisBehaviour_Last = CHASSIS_NO_FOLLOW;
 			break;
 
 		case CHASSIS_FOLLOW_GIMBAL:                  // 底盘跟随云台
 
-            if(Prv_Behaviour_Last == CHASSIS_SPIN){                        //降低小陀螺转速
+            if(ChassisBehaviour_Last == CHASSIS_SPIN){                        //降低小陀螺转速
 				int j = 700;
 				while (j)
 				{
@@ -466,7 +466,7 @@ void Chassis_t::Generate(void) {
 				//BigYaw_MotorSpeed(Gimbal_BigYaw);
 			}
 
-			Prv_Behaviour_Last = CHASSIS_FOLLOW_GIMBAL;
+			ChassisBehaviour_Last = CHASSIS_FOLLOW_GIMBAL;
 			break;
 
 		case CHASSIS_SPIN:                            // 小陀螺运动
@@ -475,7 +475,7 @@ void Chassis_t::Generate(void) {
 			CalcSpeedWithRelativeAngle();
 			IK_MotorSpeed();
 			// BigYaw_MotorSpeed(Gimbal_BigYaw);
-			Prv_Behaviour_Last = CHASSIS_SPIN;
+			ChassisBehaviour_Last = CHASSIS_SPIN;
 			break;
 	}
 
