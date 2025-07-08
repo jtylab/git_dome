@@ -144,7 +144,7 @@ int main(void)
   BSP_PWM_Init();
   BSP_CAN_Init();
   BSP_UART_Init();
-	BSP_IMU_Init();
+  BSP_IMU_Init();
 	
   DR16_Init();
   IMU_CAN_Init();

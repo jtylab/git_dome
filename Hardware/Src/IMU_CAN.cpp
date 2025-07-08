@@ -49,9 +49,10 @@ void Chassis_IMU_t::UpdateAttitude(float Yaw_Angle, float Pitch_Angle, float X_A
 		Chassis_t* Chassis = ChassisPoint();
         memcpy(&Chassis->Gimbal_Presently_Attitude.Yaw_Angle,&Data[0],4);
 		memcpy(&Chassis->Gimbal_Presently_Attitude.Pitch_Angle,&Data[4],4);
-		memcpy(&Gimbal_IMU.X_Acceleration,&Data[8],4);
-		memcpy(&Gimbal_IMU.Y_Acceleration,&Data[12],4);
-		memcpy(&Gimbal_IMU.Z_Acceleration,&Data[16],4);
+		memcpy(&Chassis->Gimbal_Presently_Attitude.X_Acceleration,&Data[8],4);
+		memcpy(&Chassis->Gimbal_Presently_Attitude.Y_Acceleration,&Data[12],4);
+		memcpy(&Chassis->Gimbal_Presently_Attitude.Z_Acceleration,&Data[16],4);
+		Chassis->UpadteGimbalAngleError();
 	}
  }
 

@@ -81,7 +81,7 @@ extern "C" {
 // #define Gimbal_BigYaw    0        //云台大Yaw电机
 // #define Gimbal_SmallYaw  0        //云台小Yaw电机 
 
-static int Lnitial_Angle_Deviation = 0;              //云台和底盘同向时的起始角度偏差
+
 
 
 #ifdef __cplusplus
@@ -95,8 +95,8 @@ enum ChassisBehaviour_e {
 };
 
 enum Gimbal_Motor_Type{
-	Gimbal_BigYaw = 0,             //大Yaw
-	Gimbal_SmallYaw,               //小Yaw
+	Gimbal_BigYawMotor = 0,             //大Yaw
+	Gimbal_SmallYawMotor,               //小Yaw
 };
 
 enum Gimbal_Control_Type{
@@ -122,6 +122,8 @@ class Chassis_t {
 		//模式PID
 		PID_t Chassis_Follow_PID;       
         PID_t Prv_PID_PowerLimit;
+		PID_t Gimbal_Zeropoint_Calibration[2];
+		PID_t Chassis_Zeropoint_Calibration;
 
         //电机目标值
 		float Motor_Target_Speed[4];                
@@ -154,7 +156,8 @@ class Chassis_t {
 
 	public:
         float Yaw_RelativeAngle;                      // 底盘相对云台坐标系的角度 (rad)(-pi,pi)
-		
+		float Lnitial_Angle_Deviation;              //云台和底盘同向时的起始角度偏差
+
         struct {
 			float X;
 			float Y;
@@ -213,7 +216,9 @@ class Chassis_t {
 		void UpdateGimbalAttitude(float Yaw_Angle, float Pitch_Angle, float X_Acceleration, float Y_Acceleration, float Z_Acceleration);
 		void GetChassisSpeed(float* Chassis_X, float* Chassis_Y, float* Chassis_Z);
 		void Generate(void);
-		void GimbalAngle_Calibration(void);
+		void GimbalAngle_Calibration_Start(void);
+		void GimbalAngle_Calibration_Sport(void);
+		void UpadteGimbalAngleError(void);
 		
 };
 

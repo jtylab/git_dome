@@ -46,7 +46,7 @@ void MainTask(void *argument) {
 		Chassis->UpdataRelativeAttitude();
 
 		if(DR16->SW1 != REMOTE_SW_UP){
-			Chassis->Gimbal_SelfStabilizing(Gimbal_BigYaw);
+			Chassis->Gimbal_SelfStabilizing(Gimbal_BigYawMotor);
 		}
 		
 		 osDelay(3);

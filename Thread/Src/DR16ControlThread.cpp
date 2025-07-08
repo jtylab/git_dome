@@ -12,7 +12,7 @@
  #include "DR16ControlThread.h"
 
 
- #define Scaler_Chassis 1000.0f  //DR16遥控器灵敏度
+ #define Scaler_Chassis 400.0f  //DR16遥控器灵敏度
 
 
 /**
@@ -26,7 +26,7 @@
     DR16_t* DR16 = DR16_Point();
 	Chassis_t* Chassis = ChassisPoint();
 
-	osDelay(2000);
+	osDelay(6000);
 
     while(1){
 		
@@ -38,13 +38,13 @@
 			case REMOTE_SW_MID:
 				Chassis->SetBehaviour(CHASSIS_FOLLOW_GIMBAL);                   // CHASSIS_FOLLOW_GIMBAL CHASSIS_NO_FOLLOW
                 Chassis->SetGimbalTargetSpeed((float)DR16->CH1 / 660.0f * Scaler_Chassis, (float)DR16->CH2 / 660.0f * Scaler_Chassis, 0);
-				Chassis->SetGimbalTargetAngle(Gimbal_BigYaw, Speed_Control,(float)DR16->CH3 /660.0f * 150.0f);            
+				Chassis->SetGimbalTargetAngle(Gimbal_BigYawMotor, Speed_Control,(float)DR16->CH3 /660.0f * 150.0f);            
 				break;
  
 			case REMOTE_SW_DOWN:
 				Chassis->SetBehaviour(CHASSIS_SPIN);                            // CHASSIS_FOLLOW_GIMBAL CHASSIS_SPIN
                 Chassis->SetGimbalTargetSpeed((float)DR16->CH1 / 660.0f * Scaler_Chassis, (float)DR16->CH2 / 660.0f * Scaler_Chassis, 0);
-				Chassis->SetGimbalTargetAngle(Gimbal_BigYaw, Speed_Control,(float)DR16->CH3 /660.0f * 150.0f);            
+				Chassis->SetGimbalTargetAngle(Gimbal_BigYawMotor, Speed_Control,(float)DR16->CH3 /660.0f * 150.0f);            
 				break;
 
 			default:
