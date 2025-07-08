@@ -28,7 +28,7 @@
 #include "Color.h"
 
 #include "DebuggerThread.h"
-
+#include "Robodefine.h"
 
 
 #ifdef __cplusplus

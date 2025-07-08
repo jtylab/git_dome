@@ -43,7 +43,7 @@
 #include "DebuggerThread.h"
 #include "InteractionThread.h"
 #include "DR16ControlThread.h"
-
+#include "Robodefine.h"
 
 #ifdef __cplusplus
 extern "C" {

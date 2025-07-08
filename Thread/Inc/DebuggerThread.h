@@ -19,7 +19,7 @@
 #include "task.h"
 
 #include "BSP_UART.h"
-
+#include "Robodefine.h"
 
 #ifdef __cplusplus
 extern "C" {

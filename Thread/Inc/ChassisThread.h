@@ -48,39 +48,13 @@
 #include "ChassisThread.h"
 #include "DebuggerThread.h"
 #include "MainThread.h"
+#include "Robodefine.h"
 
 
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#define LU 0
-#define RU 1
-#define LD 2
-#define RD 3
-
-#define PI 3.1415926535897932384626f
-
-#define LU_Angle    1.0f/4.0f*PI                  //底盘电机于物理中心的角度
-#define RU_Angle   -1.0f/4.0f*PI
-#define LD_Angle    3.0f/4.0f*PI
-#define RD_Angle   -3.0f/4.0f*PI
-
-#define Chassis_R   0.25f                         //???????????????????  底盘中心到电机的半径(需要测量)C   
-#define Motort_R    0.075f                        //???????????????????  电机中心到轮子的半径(需要测量)
-
-#define Acceldeviation_X  -0.01f                 //IMU静止时的加速度偏差
-#define Acceldeviation_Y  0.6f
-#define Acceldeviation_Z  -9.7f
-
-#define Gimbal_BigYawSpeed    0        //BigYaw云台6020电机PID
-#define Gimbal_BigYawAngle    1  
-#define Gimbal_SmallYawSpeed    2      //SmallYaw云台6020电机PID
-#define Gimbal_SmallYawAngle    3  
-// #define Gimbal_BigYaw    0        //云台大Yaw电机
-// #define Gimbal_SmallYaw  0        //云台小Yaw电机 
-
 
 
 
@@ -206,7 +180,8 @@ class Chassis_t {
 		void Chassis_Init(RM_Motor_t* Motor_LU, RM_Motor_t* Motor_RU, RM_Motor_t* Motor_LD, RM_Motor_t* Motor_RD);
 		void Gimbal_Init(RM_Motor_t* Gimbal_Motor1, RM_Motor_t* Gimbal_Motor2);
 		void SetBehaviour(ChassisBehaviour_e Behaviour);
-		void UpdataRelativeAttitude(void);
+		void UpdataRelativeAttitude_Gyroscope(void);
+		void UpdataRelativeAttitude_Mechanical(void)
 		void SetPowerLimitFlag(bool doPowerLimit);
 		void SetPowerLimitTarget(float Watt);
 		void SetChassisTargetSpeed(float Speed_X, float Speed_Y, float Speed_Z);

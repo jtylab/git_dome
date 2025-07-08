@@ -12,7 +12,6 @@
  #include "DR16ControlThread.h"
 
 
- #define Scaler_Chassis 400.0f  //DR16遥控器灵敏度
 
 
 /**

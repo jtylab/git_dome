@@ -13,16 +13,13 @@
 
 
 
+RM_Motor_t ChassisMotor_LU(1, RM_Motor_t::M3508, 1);
+RM_Motor_t ChassisMotor_RU(1, RM_Motor_t::M3508, 2);
+RM_Motor_t ChassisMotor_LD(1, RM_Motor_t::M3508, 3);
+RM_Motor_t ChassisMotor_RD(1, RM_Motor_t::M3508, 4);
 
-
-
-
-RM_Motor_t ChassisMotor_1(1, RM_Motor_t::M3508, 1);
-RM_Motor_t ChassisMotor_2(1, RM_Motor_t::M3508, 2);
-RM_Motor_t ChassisMotor_3(1, RM_Motor_t::M3508, 3);
-RM_Motor_t ChassisMotor_4(1, RM_Motor_t::M3508, 4);
-
-RM_Motor_t GimbalMtor_1(1, RM_Motor_t::GM6020,1);
+RM_Motor_t GimbalMotor_BigYaw(1, RM_Motor_t::GM6020,1);
+RM_Motor_t GimbalMotor_smallYaw(1, RM_Motor_t::GM6020,2);
 
 
 
@@ -36,14 +33,14 @@ void MainTask(void *argument) {
 	DR16_t* DR16 = DR16_Point();
 // 	Booster_t *Booster = BoosterPoint();
 
-	Chassis->Chassis_Init(&ChassisMotor_1, &ChassisMotor_2, &ChassisMotor_3, &ChassisMotor_4);
-	Chassis->Gimbal_Init(&GimbalMtor_1,NULL);
+	Chassis->Chassis_Init(&ChassisMotor_LU, &ChassisMotor_RU, &ChassisMotor_LD, &ChassisMotor_RD);
+	Chassis->Gimbal_Init(&GimbalMotor_BigYaw,&GimbalMotor_smallYaw);
 
 	osDelay(3500);
 	
 	while (1) {
 
-		Chassis->UpdataRelativeAttitude();
+		Chassis->UpdataRelativeAttitude_Mechanical();
 
 		if(DR16->SW1 != REMOTE_SW_UP){
 			Chassis->Gimbal_SelfStabilizing(Gimbal_BigYawMotor);

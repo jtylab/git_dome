@@ -11,10 +11,6 @@
  */
 #include "ChassisThread.h"
 
-#define Kf        0.0007f                       //底盘相对角度前馈可以使小陀螺模式时做到X，Y线速度方向不变
-#define Smallgyro_speed     900.0f             //小陀螺转速
-#define BigGimbal_ZeroMechanicalAngle  7722      //机械零点(0~8091)
-
 Chassis_t Chassis;
 
 
@@ -127,11 +123,11 @@ void Chassis_t::SetBehaviour(ChassisBehaviour_e Behaviour) {
 }
 
 /**
- * @brief 更新云台于底盘的相对姿态信息
+ * @brief 更新云台于底盘的相对姿态信息(陀螺仪)
  * 
  * @remark 同时完成了相对角度从360到(-pi,pi)的映射
  */
-void Chassis_t::UpdataRelativeAttitude(void){
+void Chassis_t::UpdataRelativeAttitude_Gyroscope(void){
 	float RelativeAngle = Chassis_Presently_Attitude.Yaw_Angle - Gimbal_Presently_Attitude.Yaw_Angle;
 	// if(abs(RelativeAngle) <= 3){RelativeAngle = 0;}
 
@@ -142,6 +138,20 @@ void Chassis_t::UpdataRelativeAttitude(void){
 	Chassis_t::Pitch_RelativeAngularVelocity = - sin(Gimbal_Angle_Yaw_pi) * Chassis_Presently_Attitude.X_Acceleration - cos(Gimbal_Angle_Yaw_pi) * Chassis_Presently_Attitude.Y_Acceleration + Gimbal_Presently_Attitude.Y_Acceleration;
 
 	Chassis_t::Yaw_RelativeAngle = -(float)((RelativeAngle + Kf * Chassis.Chassis_Currentspeed_Z) * pi / 180.0f);
+}
+
+
+/**
+ * @brief 更新云台于底盘的相对姿态信息(机械角度)
+ * 
+ * @remark 同时完成了相对角度从360到(-pi,pi)的映射
+ */
+void Chassis_t::UpdataRelativeAttitude_Mechanical(void){
+
+	float RelativeAngle = Gimbal_Motor[Gimbal_BigYawMotor]->GetAngle() * 1.0f - BigGimbal_ZeroMechanicalAngle * 1.0f;
+	RelativeAngle = (RelativeAngle * 360.0f) / 8192.0f;
+
+	Chassis_t::Yaw_RelativeAngle = -(float)((RelativeAngle * pi / 180.0f));
 }
 
 
@@ -344,7 +354,7 @@ void Chassis_t::Gimbal_SelfStabilizing(Gimbal_Motor_Type Motor_Type){
 		// 	Lag = 1.0;
 		// }
 		// float BigYawTargetMechanicalAngle = Gimbal_Motor[Gimbal_BigYaw]->GetZero_MechanicalAngle() + (Gimbal_Target_Angle[Gimbal_BigYaw] - Chassis.Gimbal_Presently_Attitude.Yaw_Angle) * Unit_Angle;       //   TargetMechanicalAngle = (0,8191)
-	    Gimbal_Motor_PID[Gimbal_BigYawAngle].GenerateRing(Chassis.Gimbal_Presently_Attitude.Yaw_Angle,Gimbal_Target_Angle[Gimbal_BigYawMotor],360);
+	    Gimbal_Motor_PID[Gimbal_BigYawAngle].GenerateRing(Yaw_RelativeAngle * 180.f / pi ,Gimbal_Target_Angle[Gimbal_BigYawMotor],360);
 	    Gimbal_Motor_PID[Gimbal_BigYawSpeed].Generate(Gimbal_Motor[Gimbal_BigYawMotor]->GetSpeed(), -Gimbal_Motor_PID[Gimbal_BigYawAngle].GetOutput());
 	    Gimbal_Motor[Gimbal_BigYawMotor]->SetCurrent(Gimbal_Motor_PID[Gimbal_BigYawSpeed].GetOutput());
 		break;
@@ -487,7 +497,7 @@ void ChassisTask(void* argument) {
 }
 
 osThreadId_t ChassisThreadHandle;
-static const osThreadAttr_t ChassisTask_attributes = {"ChassisTask", 0, 0, 0, 0, 512, (osPriority_t)osPriorityNormal3};
+static const osThreadAttr_t ChassisTask_attributes = {"ChassisTask", 0, 0, 0, 0, 512, (osPriority_t)osPriorityNormal7};
 /**
  * @brief 线程初始化
  * @caller main.c
