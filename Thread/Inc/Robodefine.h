@@ -49,6 +49,10 @@
 
 #define Scaler_Chassis 400.0f  //DR16遥控器灵敏度
 
+#define C_Board_CAN_Port 2                  //双C板通信CAN端口号
+#define C_Board_CAN_ID (uint32_t)0x123UL    //双C板通信CAN ID
+
+#define C_Board_CAN_ThreadFlag1 0x01      //双C板通信线程任务通知Flag
 
 
 

@@ -54,7 +54,6 @@
 #include "MainThread.h"
 #include "DebuggerThread.h"
 #include "ChassisThread.h"
-#include "DR16ControlThread.h"
 
 
 /* USER CODE END Includes */
@@ -147,7 +146,6 @@ int main(void)
   BSP_IMU_Init();
 	
   DR16_Init();
-  IMU_CAN_Init();
   
 
 
@@ -158,7 +156,6 @@ int main(void)
   // PM_Init();
   
 MainThread_Init();
-DR16ControlThread_Init();
   
 
 InteractionThread_Init();
