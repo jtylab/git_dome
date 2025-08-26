@@ -13,8 +13,7 @@
  #define C_Board_CAN_H
 
 
- #include "main.h"
-#include "main.h"
+
 #include "BSP_CAN.h"
 #include "main.h"
 #include "spi.h"
@@ -49,10 +48,12 @@ typedef struct CAN_TxData_t{
 
 
 
-__attribute__((aligned(4)))  CAN_RxData_t Chassis_CAN_RxData;
-__attribute__((aligned(4)))  CAN_TxData_t Chassis_CAN_TxData;
+
 
 static osThreadId_t Chassis_C_CANThreadID;
+void Chassis_C_CANTaskInit(void);
+
+
 
 #ifdef __cplusplus
 } /* extern "C" */

@@ -344,8 +344,6 @@ void IMU_Task(void *argument){
 			IMU.Angle_Y = Angle[1];		
 			IMU.Angle_Z = Angle[2];
             
-			Chassis->UpdateChassisAttitude((float)Angle[2], (float)Angle[1], (float)(Accel[1] + Acceldeviation_Y), -(float)(Accel[0] + Acceldeviation_X), (float)(Accel[2] + Acceldeviation_Z));
-            // Chassis_IMU.UpdateAttitude((float)Angle[2], (float)Angle[1], (float)(Accel[1] + Acceldeviation_Y), -(float)(Accel[0] + Acceldeviation_X), (float)(Accel[2] + Acceldeviation_Z));
 			IMU.Temp = Temp;
 		}
 		if(FirstHeatFlag){

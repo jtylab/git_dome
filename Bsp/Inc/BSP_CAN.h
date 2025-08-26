@@ -13,6 +13,7 @@
 #define __BSP_CAN_H
 
 #include "main.h"
+#include "dm_imu.h"
 
 #ifndef __cplusplus
 #include "stdbool.h"

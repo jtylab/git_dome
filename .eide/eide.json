@@ -148,6 +148,15 @@
                   },
                   {
                     "path": "Hardware/Src/TFmini.cpp"
+                  },
+                  {
+                    "path": "Hardware/Src/InteractionThread.cpp"
+                  },
+                  {
+                    "path": "Hardware/Src/DM_IMU_CAN.cpp"
+                  },
+                  {
+                    "path": "Hardware/Src/dm_imu.c"
                   }
                 ],
                 "folders": [
@@ -214,6 +223,9 @@
                       },
                       {
                         "path": "Thread/Src/DR16ControlThread.cpp"
+                      },
+                      {
+                        "path": "Thread/Src/C_Board_CAN.cpp"
                       }
                     ],
                     "folders": []
@@ -538,7 +550,8 @@
             }
           ]
         },
-        "options": "null"
+        "options": "null",
+        "archExtensions": ""
       },
       "uploader": "OpenOCD",
       "uploadConfig": {
@@ -642,5 +655,5 @@
       }
     }
   },
-  "version": "3.5"
+  "version": "3.6"
 }

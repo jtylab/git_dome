@@ -50,7 +50,7 @@
 #include "MainThread.h"
 #include "Robodefine.h"
 
-
+#include "dm_imu.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -72,7 +72,10 @@ enum Gimbal_Motor_Type{
 	Gimbal_BigYawMotor = 0,             //大Yaw
 	Gimbal_SmallYawMotor,               //小Yaw
 };
-
+enum Control_type{
+	Imu = 0,             //IMU
+	Machine,             //机械角度控制
+};
 
 enum Gimbal_Control_Type{
 	Position_Control = 0,          //位控
@@ -80,7 +83,7 @@ enum Gimbal_Control_Type{
 };
 
 class Chassis_t {
-	private:
+	public:
 
 	    //底盘运动状态
 		ChassisBehaviour_e 	ChassisBehaviour;
@@ -122,12 +125,12 @@ class Chassis_t {
 		float Prv_PowerLimit_Target;
 		float Prv_TransitionLPFq;  // 取值 0.0~1.0
 
-	public:
+	
 		void  CalcSpeedWithRelativeAngle(void);
 		void  FK_ChassisSpeed(void);
 		void  IK_MotorSpeed(void);
 		void  Calculate_MotorPID(void); 
-		void  Gimbal_SelfStabilizing(Gimbal_Motor_Type Motor_Type);
+		void  Gimbal_SelfStabilizing(Control_type Motor_Type);
 
 	public:
         float Yaw_RelativeAngle;                      // 底盘相对云台坐标系的角度 (rad)(-pi,pi)
@@ -187,8 +190,8 @@ class Chassis_t {
 		void SetPowerLimitTarget(float Watt);
 		void SetChassisTargetSpeed(float Speed_X, float Speed_Y, float Speed_Z);
 		void UpdateChassisAttitude(float Yaw_Angle, float Pitch_Angle, float X_Acceleration, float Y_Acceleration, float Z_Acceleration);
-		void SetGimbalTargetSpeed(float Speed_X, float Speed_Y, float Speed_Z);
-		void SetGimbalTargetAngle(Gimbal_Motor_Type MotorType,Gimbal_Control_Type Control_Type, float Target_Angle);
+		void SetGimbalTargetSpeed(float Speed_Z);
+		void SetGimbalTargetAngle(Control_type control_type,Gimbal_Control_Type Control_Type, float Target_Angle);
 		void UpdateGimbalAttitude(float Yaw_Angle, float Pitch_Angle, float X_Acceleration, float Y_Acceleration, float Z_Acceleration);
 		void GetChassisSpeed(float* Chassis_X, float* Chassis_Y, float* Chassis_Z);
 		void Generate(void);

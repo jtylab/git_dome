@@ -18,7 +18,7 @@ RM_Motor_t ChassisMotor_RU(1, RM_Motor_t::M3508, 2);
 RM_Motor_t ChassisMotor_LD(1, RM_Motor_t::M3508, 3);
 RM_Motor_t ChassisMotor_RD(1, RM_Motor_t::M3508, 4);
 
-RM_Motor_t GimbalMotor_BigYaw(1, RM_Motor_t::GM6020,1);
+RM_Motor_t GimbalMotor_BigYaw(1, RM_Motor_t::GM6020,6);
 RM_Motor_t GimbalMotor_smallYaw(1, RM_Motor_t::GM6020,2);
 
 
@@ -42,8 +42,12 @@ void MainTask(void *argument) {
 
 		Chassis->UpdataRelativeAttitude_Mechanical();
 
-		if(DR16->SW1 != REMOTE_SW_UP){
-			Chassis->Gimbal_SelfStabilizing(Gimbal_BigYawMotor);
+		if(Chassis->ChassisBehaviour == CHASSIS_SPIN){
+			Chassis->Gimbal_SelfStabilizing(Imu);
+		}
+		if (Chassis->ChassisBehaviour == CHASSIS_FOLLOW_GIMBAL)
+		{
+			Chassis->Gimbal_SelfStabilizing(Machine);
 		}
 		
 		 osDelay(3);

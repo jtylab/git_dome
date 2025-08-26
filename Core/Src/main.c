@@ -47,6 +47,7 @@
 #include "RM_Motor.h"
 #include "RM_VTM.h"
 #include "SuperCap.h"
+#include "DM_IMU_CAN.h"
 
 #include "PM_CAN.h"
 
@@ -54,6 +55,7 @@
 #include "MainThread.h"
 #include "DebuggerThread.h"
 #include "ChassisThread.h"
+#include "C_Board_CAN.h"
 
 
 /* USER CODE END Includes */
@@ -146,7 +148,9 @@ int main(void)
   BSP_IMU_Init();
 	
   DR16_Init();
-  
+
+
+  DM_IMU_CAN_Init();
 
 
   RM_Motor_Init();
@@ -156,11 +160,10 @@ int main(void)
   // PM_Init();
   
 MainThread_Init();
-  
-
+ChassisThread_Init();
+Chassis_C_CANTaskInit();
 InteractionThread_Init();
   // DebuggerThread_Init();
-ChassisThread_Init();
 
 
   /* USER CODE END 2 */

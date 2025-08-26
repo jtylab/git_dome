@@ -11,6 +11,9 @@
  */
 #include "BSP_CAN.h"
 
+uint8_t b = 0;
+uint8_t c = 0;
+
 #include "can.h"
 
 #include "string.h"  // memcpy
@@ -228,6 +231,7 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
 	if (HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &RxHeader, RxData) != HAL_OK) {
 		Error_Handler();
 	}
+
 	for (int i = 0; i < CAN_NUM; i++) {
 		if (hcan == CAN_Obj[i].hcan && RxHeader.RTR == CAN_RTR_DATA) {
 			BSP_CAN_Obj_t *obj = &CAN_Obj[i];
