@@ -18,8 +18,8 @@ RM_Motor_t ChassisMotor_RU(1, RM_Motor_t::M3508, 2);
 RM_Motor_t ChassisMotor_LD(1, RM_Motor_t::M3508, 3);
 RM_Motor_t ChassisMotor_RD(1, RM_Motor_t::M3508, 4);
 
-RM_Motor_t GimbalMotor_BigYaw(1, RM_Motor_t::GM6020,6);
-RM_Motor_t GimbalMotor_smallYaw(1, RM_Motor_t::GM6020,2);
+RM_Motor_t GimbalMotor_BigYaw(1, RM_Motor_t::GM6020,2);
+RM_Motor_t GimbalMotor_smallYaw(1, RM_Motor_t::GM6020,3);
 
 
 

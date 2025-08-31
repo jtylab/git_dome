@@ -183,4 +183,18 @@ float PID_t::GetOutput(void) {
 	return Private_Output;
 }
 
+
+/**
+ * @brief 设置PID参数
+ * 
+ * @param kp 
+ * @param ki 
+ * @param kd 
+ */
+void PID_t::Vofa_Set_kpid(float kp , float ki, float kd){
+	Private_P = kp;
+	Private_I = kp;
+	Private_D = kp;
+}
+
 /*********************************END OF FILE*********************************/

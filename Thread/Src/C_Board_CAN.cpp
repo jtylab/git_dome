@@ -54,9 +54,10 @@ void Chassis_C_CANTask(void *argument){
         // uint32_t Chassis_C_CANFlags = osThreadFlagsWait(0x01,osFlagsWaitAny,osWaitForever);
 
         Chassis->SetBehaviour((ChassisBehaviour_e)Chassis_CAN_RxData.ChassisBehaviour);
-        Chassis->SetChassisTargetSpeed(Chassis_CAN_RxData.Gimbal_Target_Speed_X, Chassis_CAN_RxData.Gimbal_Target_Speed_Y, Chassis_CAN_RxData.Gimbal_Target_Speed_Z);
+        Chassis->SetChassisTargetSpeed(Chassis_CAN_RxData.Gimbal_Target_Speed_X, Chassis_CAN_RxData.Gimbal_Target_Speed_Y, 0);
         // Chassis->SetGimbalTargetAngle(Gimbal_BigYawMotor,Speed_Control,Chassis_CAN_RxData.Gimbal_Target_Angle*2);
-        Chassis->SetGimbalTargetSpeed(Chassis_CAN_RxData.Gimbal_Target_Angle);
+        Chassis->SetGimbalTargetSpeed(Chassis_CAN_RxData.Gimbal_Target_Speed_Z);
+        
         if (Chassis_CAN_RxData.Gimbal_Target_Angle != 0)
         {
           Chassis->SetGimbalTargetAngle(Imu,Position_Control,imu->yaw);

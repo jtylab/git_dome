@@ -56,22 +56,31 @@ void Chassis_t::Gimbal_Init(RM_Motor_t* Gimbal_Motor1, RM_Motor_t* Gimbal_Motor2
 
 	
 
-    Gimbal_Motor_PID[Gimbal_BigYawAngle].Init(10, 0 ,1, 0, 3, 4000, -1,0);
-	Gimbal_Motor_PID[Gimbal_BigYawSpeed].Init(150, 10 ,0, 0, 3, 6000,19000);
+    //Gimbal_Motor_PID[Gimbal_BigYawAngle].Init(10, 0 ,1, 0, 3, 4000, -1,0);
+	//Gimbal_Motor_PID[Gimbal_BigYawSpeed].Init(150, 10 ,0, 0, 3, 6000,19000);
+
+	 Gimbal_Motor_PID[Gimbal_BigYawAngle].Init(5, 0 ,1000, 0, 3, 4000, -1,0);
+	 Gimbal_Motor_PID[Gimbal_BigYawSpeed].Init(120, 0.01 ,0, 0, 3, 6000,19000);
 	
-	// Gimbal_Motor_PID[Gimbal_SmallYawSpeed].Init(13, 0 ,0, 2, 4, 6000, 16383);
-	// Gimbal_Motor_PID[Gimbal_SmallYawAngle].Init(13, 0 ,0, 2, 4, 6000, 16383);
+
 
     Gimbal_Motor[Gimbal_BigYawMotor]->SetZero_MechanicalAngle(BigGimbal_ZeroMechanicalAngle);
 	SetGimbalTargetAngle(Machine,Position_Control,BigGimbal_ZeroMechanicalAngle);
-	// Gimbal_Motor[Gimbal_SmallYaw]->SetZero_MechanicalAngle(Gimbal_Motor[Gimbal_SmallYaw]->GetAngle());
+	// Gimbal_Motor[Gimbal_SmallYaw]->SetZero_MechanicalAngle(Gimbal_Motor[Gimbal_SmallYaw]->GetAngle()); 
 
-    Gimbal_Zeropoint_Calibration[Gimbal_BigYawAngle].Init(0.1, 0, 0.02, 0, 2, 4000, -1,0);
-	Gimbal_Zeropoint_Calibration[Gimbal_BigYawSpeed].Init(100, 0, 0, 0, 2, 6000,19000);
+    // Gimbal_Zeropoint_Calibration[Gimbal_BigYawAngle].Init(0.1, 0, 0.2, 0, 2, 4000, -1,0);
+	// Gimbal_Zeropoint_Calibration[Gimbal_BigYawSpeed].Init(100, 0.1, 0, 0, 2, 6000,19000);
+
+	// Gimbal_Zeropoint_Calibration[Gimbal_BigYawAngle].Init(3, 0, 20, 0, 2, 4000, -1,0);
+	// Gimbal_Zeropoint_Calibration[Gimbal_BigYawSpeed].Init(60, 0.01, 0, 0, 2, 6000,19000);
+
+	//曹
+	Gimbal_Zeropoint_Calibration[Gimbal_BigYawAngle].Init(10, 0, 17, 0, 4, 4000, 10000,0);
+	Gimbal_Zeropoint_Calibration[Gimbal_BigYawSpeed].Init(30, 0.1, 0, 0, 4, 6000,15000,0);
 	
 }
 
-/**
+/**  
  * @brief 底盘与云台跟随模式累计角度差归零(开机启动时)
  * 
  */
@@ -375,6 +384,7 @@ void Chassis_t::Gimbal_SelfStabilizing(Control_type control_type){
 	    Gimbal_Zeropoint_Calibration[Gimbal_BigYawSpeed].Generate(Gimbal_Motor[Gimbal_BigYawMotor]->GetSpeed(), Gimbal_Zeropoint_Calibration[Gimbal_BigYawAngle].GetOutput() - Chassis.Gimbal_Target_Speed.Z);
 
 		Gimbal_Motor[Gimbal_BigYawMotor]->SetCurrent(Gimbal_Zeropoint_Calibration[Gimbal_BigYawSpeed].GetOutput());
+		SetGimbalTargetAngle(Machine,Position_Control,Gimbal_Motor[Gimbal_BigYawMotor]->GetAngle());
 		break;
 	}
     
@@ -501,7 +511,7 @@ void Chassis_t::Generate(void) {
 void ChassisTask(void* argument) {
     
 	
-	Chassis.GimbalAngle_Calibration_Start();
+	// Chassis.GimbalAngle_Calibration_Start();
 
 	while (1) {
 		Chassis.Generate();

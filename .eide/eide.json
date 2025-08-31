@@ -157,6 +157,9 @@
                   },
                   {
                     "path": "Hardware/Src/dm_imu.c"
+                  },
+                  {
+                    "path": "Hardware/Src/vofa_usart.cpp"
                   }
                 ],
                 "folders": [

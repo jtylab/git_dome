@@ -48,7 +48,7 @@
 #include "RM_VTM.h"
 #include "SuperCap.h"
 #include "DM_IMU_CAN.h"
-
+#include "vofa_usart.h"
 #include "PM_CAN.h"
 
 
@@ -150,6 +150,7 @@ int main(void)
   DR16_Init();
 
 
+vofa_usart_Init();
   DM_IMU_CAN_Init();
 
 

@@ -43,7 +43,7 @@
 
 
 #define Kf        0.0007f                       //底盘相对角度前馈可以使小陀螺模式时做到X，Y线速度方向不变
-#define Smallgyro_speed     400.0f             //小陀螺转速
+#define Smallgyro_speed     800.0f             //小陀螺转速
 #define BigGimbal_ZeroMechanicalAngle  4777      //机械零点(0~8091)
 
 

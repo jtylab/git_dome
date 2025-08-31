@@ -75,6 +75,7 @@ class PID_t {
 		void ClearIntegral(void);
 		float GetIntegral(void);
 		float GetOutput(void);
+		void Vofa_Set_kpid(float kp , float ki, float kd);
 };
 #endif
 
