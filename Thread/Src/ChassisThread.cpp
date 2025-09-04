@@ -12,7 +12,7 @@
 #include "ChassisThread.h"
 
 Chassis_t Chassis;
-LPF_t LPF_imu;
+LPF_t LPF_imu , LPF_Gimbal_speed;
 
 
 /**
@@ -59,8 +59,8 @@ void Chassis_t::Gimbal_Init(RM_Motor_t* Gimbal_Motor1, RM_Motor_t* Gimbal_Motor2
     //Gimbal_Motor_PID[Gimbal_BigYawAngle].Init(10, 0 ,1, 0, 3, 4000, -1,0);
 	//Gimbal_Motor_PID[Gimbal_BigYawSpeed].Init(150, 10 ,0, 0, 3, 6000,19000);
 
-	 Gimbal_Motor_PID[Gimbal_BigYawAngle].Init(5, 0 ,1000, 0, 3, 4000, -1,0);
-	 Gimbal_Motor_PID[Gimbal_BigYawSpeed].Init(120, 0.01 ,0, 0, 3, 6000,19000);
+	 Gimbal_Motor_PID[Gimbal_BigYawAngle].Init(4.4, 0 ,700, 0, 3, 100, -1,0);
+	 Gimbal_Motor_PID[Gimbal_BigYawSpeed].Init(800,3.08,0, 0, 3, 20000,25000);
 	
 
 
@@ -317,7 +317,7 @@ void Chassis_t::SetGimbalTargetAngle(Control_type control_type,Gimbal_Control_Ty
 	{
 	case Imu:
 	    if(abs(Chassis.Gimbal_Presently_Attitude.Yaw_Angle - Target_Angle) <= 5){
-			break;
+
 		}
 		else{
 			switch(Control_Type)
@@ -370,13 +370,17 @@ void Chassis_t::Gimbal_SelfStabilizing(Control_type control_type){
 		// }
 		// float BigYawTargetMechanicalAngle = Gimbal_Motor[Gimbal_BigYaw]->GetZero_MechanicalAngle() + (Gimbal_Target_Angle[Gimbal_BigYaw] - Chassis.Gimbal_Presently_Attitude.Yaw_Angle) * Unit_Angle;       //   TargetMechanicalAngle = (0,8191)
 
-		LPF_imu.Init(3,50);
+		LPF_imu.Init(3,10);
+        LPF_Gimbal_speed.Init(3,10);
+
 	    LPF_imu.Generate(imu->yaw);
+		LPF_Gimbal_speed.Generate(Gimbal_Motor[Gimbal_BigYawMotor]->GetSpeed());
+
 	    Gimbal_Motor_PID[Gimbal_BigYawAngle].GenerateRing(LPF_imu.GetOutput(),Gimbal_Target_Angle[Imu],360);
-	    Gimbal_Motor_PID[Gimbal_BigYawSpeed].Generate(Gimbal_Motor[Gimbal_BigYawMotor]->GetSpeed(), Gimbal_Motor_PID[Gimbal_BigYawAngle].GetOutput() - Chassis.Gimbal_Target_Speed.Z );
+	    Gimbal_Motor_PID[Gimbal_BigYawSpeed].Generate(LPF_Gimbal_speed.GetOutput(),Gimbal_Motor_PID[Gimbal_BigYawAngle].GetOutput() - Chassis.Gimbal_Target_Speed.Z );
 
 	    Gimbal_Motor[Gimbal_BigYawMotor]->SetCurrent(Gimbal_Motor_PID[Gimbal_BigYawSpeed].GetOutput());
-		SetGimbalTargetAngle(Machine,Position_Control,Gimbal_Motor[Gimbal_BigYawMotor]->GetAngle());
+		// SetGimbalTargetAngle(Imu,Position_Control,imu->yaw);
 		break;
 	
 	case Machine:
@@ -459,35 +463,19 @@ void Chassis_t::Generate(void) {
 			break;
 
 		case CHASSIS_NO_FOLLOW:                      // 底盘不跟随云台
+		    CalcSpeedWithRelativeAngle();
 			IK_MotorSpeed();
 			ChassisBehaviour_Last = CHASSIS_NO_FOLLOW;
 			break;
 
 		case CHASSIS_FOLLOW_GIMBAL:                  // 底盘跟随云台
 
-            // if(ChassisBehaviour_Last == CHASSIS_SPIN){                        //降低小陀螺转速
-			// 	int j = 700;
-			// 	while (j)
-			// 	{
-			// 		Chassis_Target_Speed.Z = -Chassis_Follow_PID.GenerateRing(Yaw_RelativeAngle, 0, 2*pi);  // 跟随
-			// 	    FK_ChassisSpeed();
-			// 	    CalcSpeedWithRelativeAngle();
-			//         IK_MotorSpeed();
-			// 		Calculate_MotorPID();
-			// 		j--;
-			// 		osDelay(2);
-			// 	}
-			// 	GimbalAngle_Calibration_Sport();
-			// }
-			// else{
-			// 	Chassis_Target_Speed.Z = -Chassis_Follow_PID.GenerateRing(Yaw_RelativeAngle, 0, 2*pi);  // 跟随
-			// 	FK_ChassisSpeed();
-			// 	CalcSpeedWithRelativeAngle();
-			//     IK_MotorSpeed();
-			// 	//BigYaw_MotorSpeed(Gimbal_BigYaw);
-			// }
+			Chassis_Target_Speed.Z = -Chassis_Follow_PID.GenerateRing(Yaw_RelativeAngle, 0, 2*pi) * 0.3f;  // 跟随
+			// FK_ChassisSpeed();
 			CalcSpeedWithRelativeAngle();
 			IK_MotorSpeed();
+			//BigYaw_MotorSpeed(Gimbal_BigYaw);
+		
 
 			ChassisBehaviour_Last = CHASSIS_FOLLOW_GIMBAL;
 			break;

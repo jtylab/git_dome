@@ -56,7 +56,10 @@ void Chassis_C_CANTask(void *argument){
         Chassis->SetBehaviour((ChassisBehaviour_e)Chassis_CAN_RxData.ChassisBehaviour);
         Chassis->SetChassisTargetSpeed(Chassis_CAN_RxData.Gimbal_Target_Speed_X, Chassis_CAN_RxData.Gimbal_Target_Speed_Y, 0);
         // Chassis->SetGimbalTargetAngle(Gimbal_BigYawMotor,Speed_Control,Chassis_CAN_RxData.Gimbal_Target_Angle*2);
-        Chassis->SetGimbalTargetSpeed(Chassis_CAN_RxData.Gimbal_Target_Speed_Z);
+
+
+        // Chassis->SetGimbalTargetSpeed(Chassis_CAN_RxData.Gimbal_Target_Speed_Z);
+        // Chassis->SetGimbalTargetSpeed(Chassis_CAN_RxData.Gimbal_Target_Angle);
         
         if (Chassis_CAN_RxData.Gimbal_Target_Angle != 0)
         {

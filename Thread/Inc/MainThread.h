@@ -43,6 +43,7 @@
 #include "DebuggerThread.h"
 #include "InteractionThread.h"
 #include "Robodefine.h"
+#include "vofa_usart.h"
 
 #ifdef __cplusplus
 extern "C" {

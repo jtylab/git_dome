@@ -160,6 +160,9 @@
                   },
                   {
                     "path": "Hardware/Src/vofa_usart.cpp"
+                  },
+                  {
+                    "path": "Hardware/Src/RMD_L_7025.cpp"
                   }
                 ],
                 "folders": [

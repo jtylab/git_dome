@@ -9,8 +9,12 @@
  * 
  */
 
+
 #include "DM_IMU_CAN.h"
-uint8_t DM_IMU_Data[8];
+
+
+
+float x,y;
 uint8_t reg = 1;
 void DM_IMU_CAN_Callback(uint32_t ID, uint8_t* Data){
     if(ID == 0x11){
@@ -18,9 +22,11 @@ void DM_IMU_CAN_Callback(uint32_t ID, uint8_t* Data){
         IMU_UpdateData(Data);
 
     }
+
 }
 
 void DM_IMU_CANTask(void *argument){
+    imu_t* imu = imuPoint();
 
     BSP_CAN_SetRxCallbackFunc(2,DM_IMU_CAN_Callback);
 
@@ -29,6 +35,9 @@ void DM_IMU_CANTask(void *argument){
         IMU_RequestData(&hcan2,0x01,reg);
         reg++;
         if(reg > 3)reg = 1;
+
+        
+       
         osDelay(1);
     }
     

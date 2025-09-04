@@ -50,6 +50,7 @@
 #include "DM_IMU_CAN.h"
 #include "vofa_usart.h"
 #include "PM_CAN.h"
+#include "RMD_L_7025.h"
 
 
 #include "MainThread.h"
@@ -152,6 +153,7 @@ int main(void)
 
 vofa_usart_Init();
   DM_IMU_CAN_Init();
+  // RMD_L_7025_Init();
 
 
   RM_Motor_Init();
