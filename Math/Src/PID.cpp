@@ -91,6 +91,7 @@ float PID_t::GenerateRing(float Input, float Target, float Perimeter) {
 	float Error;   // 误差
 	float Differ;  // 微分项
 	Error = Target - Input;       // 当前误差等于目标值减去当前值
+	uint8_t flag = 1;
 
     if(abs(Error) <= Private_Deadzone){
 		Error = 0;
@@ -98,9 +99,17 @@ float PID_t::GenerateRing(float Input, float Target, float Perimeter) {
 
 	if (Error > Perimeter / 2) {  // 处理连续旋转的相对误差
 		Error -= Perimeter;
+		// Private_Integral = 0;
+		// flag = 0;
 	} else if (Error < (-Perimeter) / 2) {
 		Error += Perimeter;
+		// Private_Integral = 0;
+		// flag = 0;
 	}
+
+		
+
+
 	if ((Private_I != 0) && (Private_T != 0)) {                                                               // 检查积分项
 		Private_Integral += Private_I * Private_T * Error;                                                    // 计算积分项
 		if (Private_Limit_Integral >= 0) {                                                                    // 限幅小于零表示不限幅
@@ -120,7 +129,7 @@ float PID_t::GenerateRing(float Input, float Target, float Perimeter) {
 			Private_Last_Differ = Differ;  // 更新微分项记录
 		}
 	}
-	Private_Output = Private_P * Error + Private_Integral + Private_D * Differ ;
+	Private_Output = Private_P * Error + Private_Integral + Private_D * Differ * flag;
 	if (Private_Limit_Output >= 0) {                                                              // 限幅小于零表示不限幅
 		Private_Output = LimitBoth(Private_Output, Private_Limit_Output, -Private_Limit_Output);  // 输出值限幅
 	}

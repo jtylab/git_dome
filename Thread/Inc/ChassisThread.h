@@ -134,6 +134,7 @@ class Chassis_t {
 
 	public:
         float Yaw_RelativeAngle;                      // 底盘相对云台坐标系的角度 (rad)(-pi,pi)
+		uint8_t BigGimbal_ZeroMechanical;                      // 底盘相对云台坐标系的角度 (rad)(-pi,pi)
 		float Lnitial_Angle_Deviation;              //云台和底盘同向时的起始角度偏差
 
         struct {
@@ -177,6 +178,7 @@ class Chassis_t {
 		    Chassis_Currentspeed_Y = 0;
 		    Chassis_Currentspeed_Z = 0;
 			Yaw_RelativeAngle = 0;
+			BigGimbal_ZeroMechanical = 0;
 			Prv_Flag_PowerLimit = 0;
 			Prv_PowerLimit_Target = 60.0f;
 			Prv_TransitionLPFq = 2.0f * pi * 0.004f * 1.0f;

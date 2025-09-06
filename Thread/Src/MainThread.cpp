@@ -25,7 +25,7 @@ RM_Motor_t GimbalMotor_BigYaw(1, RM_Motor_t::GM6020,2);
 RM_Motor_t GimbalMotor_smallYaw(1, RM_Motor_t::GM6020,3);
 
 
-float Vofabuf[4]={0};
+// float Vofabuf[4]={0};
 /**
  * @brief 主线程函数
  */
@@ -41,7 +41,7 @@ void MainTask(void *argument) {
 	Chassis->Chassis_Init(&ChassisMotor_LU, &ChassisMotor_RU, &ChassisMotor_LD, &ChassisMotor_RD);
 	Chassis->Gimbal_Init(&GimbalMotor_BigYaw,&GimbalMotor_smallYaw);
 
-    *((uint32_t *)&Vofabuf[3]) = 0x7F800000U;
+    // *((uint32_t *)&Vofabuf[3]) = 0x7F800000U;
 	osDelay(3500);
 	vofa_usart_Init();
 
@@ -76,7 +76,7 @@ void MainTask(void *argument) {
 		// Chassis->Gimbal_Motor_PID[Gimbal_BigYawAngle].SetPID(PID_Data->kp,PID_Data->ki,PID_Data->kd);
 
 
-	    BSP_UART_SendMessage(2, (uint8_t *)Vofabuf, sizeof(Vofabuf));
+	    
 
 
 

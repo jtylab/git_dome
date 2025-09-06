@@ -149,7 +149,7 @@ int main(void)
   BSP_IMU_Init();
 	
   DR16_Init();
-
+Referee_Init();
 
 vofa_usart_Init();
   DM_IMU_CAN_Init();

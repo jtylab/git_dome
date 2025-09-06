@@ -23,7 +23,7 @@
 #include "task.h"
 #include "timers.h"
 
-#define Referee_UART_Port 2
+#define Referee_UART_Port 1
 
 Referee_t Referee = {0};
 
@@ -41,6 +41,7 @@ static void Referee_UART_RxCbHandler(uint8_t *Data, uint32_t Len);
 static void Referee_Online_osTimer_CbHandler(void *argument);
 static void Referee_RobotStatus_osTimer_CbHandler(void *argument);
 void Referee_Task(void *argument);
+
 /**
  * @brief Referee 初始化
  */

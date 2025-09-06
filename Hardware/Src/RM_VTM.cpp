@@ -20,7 +20,7 @@
 #include "cmsis_os.h"
 #include "timers.h"
 
-#define VTM_UART_Port 1
+#define VTM_UART_Port 2
 
 #define K_MoveSpeed_Fast   660.0f
 #define K_MoveSpeed_Normal 330.0f

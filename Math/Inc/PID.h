@@ -16,7 +16,7 @@
 #include "Basic.h"
 
 #include "FFC.h"
-
+#include "BSP_UART.h"
 #ifdef __cplusplus
 extern "C" {
 #endif
