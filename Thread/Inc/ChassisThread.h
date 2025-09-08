@@ -85,6 +85,11 @@ enum Gimbal_Control_Type{
 class Chassis_t {
 	public:
 
+	    //底盘当前功率
+		float Chassis_CurrentPower;
+		float Chassis_TargetPower;
+		float Chassis_Future_Power;
+
 	    //底盘运动状态
 		ChassisBehaviour_e 	ChassisBehaviour;
 		ChassisBehaviour_e  ChassisBehaviour_Last;
@@ -102,6 +107,9 @@ class Chassis_t {
         PID_t Prv_PID_PowerLimit;
 		PID_t Gimbal_Zeropoint_Calibration[2];
 		PID_t Chassis_Zeropoint_Calibration;
+
+		//底盘功率计算
+		PID_t Chassis_PowerLimit_PID;
 
         //电机目标值
 		float Motor_Target_Speed[4];                
@@ -134,7 +142,8 @@ class Chassis_t {
 
 	public:
         float Yaw_RelativeAngle;                      // 底盘相对云台坐标系的角度 (rad)(-pi,pi)
-		uint8_t BigGimbal_ZeroMechanical;                      // 底盘相对云台坐标系的角度 (rad)(-pi,pi)
+		uint8_t BigGimbal_ZeroMechanical;              //零点标志位 
+		uint8_t chassis_spin_flag;               //小陀螺标志位
 		float Lnitial_Angle_Deviation;              //云台和底盘同向时的起始角度偏差
 
         struct {
@@ -200,6 +209,7 @@ class Chassis_t {
 		void GimbalAngle_Calibration_Start(void);
 		void GimbalAngle_Calibration_Sport(void);
 		void UpadteGimbalAngleError(void);
+		float Chassis_Power_Calculation(void);
 		
 };
 

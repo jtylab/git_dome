@@ -11,9 +11,10 @@
  */
 #include "ChassisThread.h"
 
-float Vofabuf[4]={0};
+// float Vofabuf[4]={0};
 Chassis_t Chassis;
 LPF_t LPF_imu , LPF_Gimbal_speed;
+uint8_t time_spin = 0;
 
 float RelativeAngle;
 float RelativeAngle_two;
@@ -30,6 +31,8 @@ void Chassis_t::Chassis_Init(RM_Motor_t* Motor_LU, RM_Motor_t* Motor_RU, RM_Moto
 	Chassis_t::Chassis_Motor[LD] = Motor_LD;
 	Chassis_t::Chassis_Motor[RD] = Motor_RD;
 
+	Chassis_t::Chassis_TargetPower = 80.0f;
+
 	Chasssis_Motor_PID[LU].Init(13, 0 ,0, 2, 4, 6000, 16383);
 	Chasssis_Motor_PID[RU].Init(13, 0, 0, 2, 4, 6000, 16383);
 	Chasssis_Motor_PID[LD].Init(13, 0, 0, 2, 4, 6000, 16383);
@@ -41,7 +44,7 @@ void Chassis_t::Chassis_Init(RM_Motor_t* Motor_LU, RM_Motor_t* Motor_RU, RM_Moto
 
 	Chassis_Zeropoint_Calibration.Init(-1, 0, 0,0, 4,3000, 16383, 0);
 
-	
+	Chassis_PowerLimit_PID.Init(0.01, 0.1, 0, 0,4, 0.4, 1);
 }
 
 
@@ -160,6 +163,8 @@ void Chassis_t::UpdataRelativeAttitude_Gyroscope(void){
  */
 void Chassis_t::UpdataRelativeAttitude_Mechanical(void){
 
+
+
 	RelativeAngle = Gimbal_Motor[Gimbal_BigYawMotor]->GetAngle() * 1.0f - Gimbal_Motor[Gimbal_BigYawMotor]->GetZero_MechanicalAngle() * 1.0f;
 	RelativeAngle = (RelativeAngle * 360.0f) / 8192.0f;
 	if (RelativeAngle < -180)
@@ -186,9 +191,21 @@ void Chassis_t::UpdataRelativeAttitude_Mechanical(void){
 	RelativeAngle_two = (float)((RelativeAngle_two * pi / 180.0f));
 
 
+	// if(chassis_spin_flag == 1){
+	
+		
+	// 	if(RelativeAngle_two <= 0){
+	// 		Chassis_t::Yaw_RelativeAngle = RelativeAngle_two;
+	// 		BigGimbal_ZeroMechanical = 1;
+	// 	}
+	// 	else{
+	// 		Chassis_t::Yaw_RelativeAngle = RelativeAngle;
+	// 		BigGimbal_ZeroMechanical = 0;
+	// 	}
+	// }
 
-
-	switch (BigGimbal_ZeroMechanical)
+	// else{
+		switch (BigGimbal_ZeroMechanical)
 	{
 	case 0:
 		if (abs(RelativeAngle) < 2.5f)
@@ -217,9 +234,28 @@ void Chassis_t::UpdataRelativeAttitude_Mechanical(void){
 	default:
 		break;
 	}
+	// }
 	
 	
 	
+	
+}
+
+
+/**
+ * @brief 底盘功率计算
+ * 
+ * @remark 底盘功率计算
+ * @param Watt 功率
+ */
+float Chassis_t::Chassis_Power_Calculation(void){ 
+	float Motor_Power[4];
+	Motor_Power[LU] = k0 + k1 * abs((float)Chassis_Motor[LU]->GetTorqueCurrent()) * 0.001f + k2 * abs((float)Chassis_Motor[LU]->GetSpeedRads()) + k3 * (float)Chassis_Motor[LU]->GetTorqueCurrent() * 0.001f * (float)Chassis_Motor[LU]->GetSpeedRads() + k4 * (float)Chassis_Motor[LU]->GetTorqueCurrent() * 0.001f * (float)Chassis_Motor[LU]->GetTorqueCurrent() * 0.001f + k5 * (float)Chassis_Motor[LU]->GetSpeedRads() * (float)Chassis_Motor[LU]->GetSpeedRads();
+	Motor_Power[RU] = k0 + k1 * abs((float)Chassis_Motor[RU]->GetTorqueCurrent()) * 0.001f + k2 * abs((float)Chassis_Motor[RU]->GetSpeedRads()) + k3 * (float)Chassis_Motor[RU]->GetTorqueCurrent() * 0.001f * (float)Chassis_Motor[RU]->GetSpeedRads() + k4 * (float)Chassis_Motor[RU]->GetTorqueCurrent() * 0.001f * (float)Chassis_Motor[RU]->GetTorqueCurrent() * 0.001f + k5 * (float)Chassis_Motor[RU]->GetSpeedRads() * (float)Chassis_Motor[RU]->GetSpeedRads();
+	Motor_Power[LD] = k0 + k1 * abs((float)Chassis_Motor[LD]->GetTorqueCurrent()) * 0.001f + k2 * abs((float)Chassis_Motor[LD]->GetSpeedRads()) + k3 * (float)Chassis_Motor[LD]->GetTorqueCurrent() * 0.001f * (float)Chassis_Motor[LD]->GetSpeedRads() + k4 * (float)Chassis_Motor[LD]->GetTorqueCurrent() * 0.001f * (float)Chassis_Motor[LD]->GetTorqueCurrent() * 0.001f + k5 * (float)Chassis_Motor[LD]->GetSpeedRads() * (float)Chassis_Motor[LD]->GetSpeedRads();
+	Motor_Power[RD] = k0 + k1 * abs((float)Chassis_Motor[RD]->GetTorqueCurrent()) * 0.001f + k2 * abs((float)Chassis_Motor[RD]->GetSpeedRads()) + k3 * (float)Chassis_Motor[RD]->GetTorqueCurrent() * 0.001f * (float)Chassis_Motor[RD]->GetSpeedRads() + k4 * (float)Chassis_Motor[RD]->GetTorqueCurrent() * 0.001f * (float)Chassis_Motor[RD]->GetTorqueCurrent() * 0.001f + k5 * (float)Chassis_Motor[RD]->GetSpeedRads() * (float)Chassis_Motor[RD]->GetSpeedRads();
+	Chassis_t::Chassis_CurrentPower = Motor_Power[LU] + Motor_Power[RU] + Motor_Power[LD] + Motor_Power[RD];
+	return Chassis_t::Chassis_CurrentPower;
 }
 
 
@@ -492,16 +528,44 @@ void  Chassis_t::Calculate_MotorPID(void){
 	// }
 
 	// 计算速度环 PID
-	Chasssis_Motor_PID[LU].Generate(Chassis_Motor[LU]->GetSpeed(), K_LimitByPwr * SpeedLimitK * Motor_Target_Speed[LU]);
-	Chasssis_Motor_PID[RU].Generate(Chassis_Motor[RU]->GetSpeed(), K_LimitByPwr * SpeedLimitK * Motor_Target_Speed[RU]);
-	Chasssis_Motor_PID[LD].Generate(Chassis_Motor[LD]->GetSpeed(), K_LimitByPwr * SpeedLimitK * Motor_Target_Speed[LD]);
-	Chasssis_Motor_PID[RD].Generate(Chassis_Motor[RD]->GetSpeed(), K_LimitByPwr * SpeedLimitK * Motor_Target_Speed[RD]);
+	Chasssis_Motor_PID[LU].Generate(Chassis_Motor[LU]->GetSpeed(),Motor_Target_Speed[LU]);
+	Chasssis_Motor_PID[RU].Generate(Chassis_Motor[RU]->GetSpeed(),Motor_Target_Speed[RU]);
+	Chasssis_Motor_PID[LD].Generate(Chassis_Motor[LD]->GetSpeed(),Motor_Target_Speed[LD]);
+	Chasssis_Motor_PID[RD].Generate(Chassis_Motor[RD]->GetSpeed(),Motor_Target_Speed[RD]);
+
+
+	float Motor_Power[4];
+	Motor_Power[LU] = k0 + k1 * abs(Chasssis_Motor_PID[LU].GetOutput()) * 0.001f + k2 * abs(Motor_Target_Speed[LU] * 0.104719775f) + k3 * Chasssis_Motor_PID[LU].GetOutput() * 0.001f * Motor_Target_Speed[LU] * 0.104719775f + k4 * Chasssis_Motor_PID[LU].GetOutput() * 0.001f * Chasssis_Motor_PID[LU].GetOutput() * 0.001f + k5 * Motor_Target_Speed[LU] * 0.104719775f * Motor_Target_Speed[LU] * 0.104719775f;
+	Motor_Power[RU] = k0 + k1 * abs(Chasssis_Motor_PID[RU].GetOutput()) * 0.001f + k2 * abs(Motor_Target_Speed[RU] * 0.104719775f) + k3 * Chasssis_Motor_PID[RU].GetOutput() * 0.001f * Motor_Target_Speed[RU] * 0.104719775f + k4 * Chasssis_Motor_PID[RU].GetOutput() * 0.001f * Chasssis_Motor_PID[RU].GetOutput() * 0.001f + k5 * Motor_Target_Speed[RU] * 0.104719775f * Motor_Target_Speed[RU] * 0.104719775f;
+	Motor_Power[LD] = k0 + k1 * abs(Chasssis_Motor_PID[LD].GetOutput()) * 0.001f + k2 * abs(Motor_Target_Speed[LD] * 0.104719775f) + k3 * Chasssis_Motor_PID[LD].GetOutput() * 0.001f * Motor_Target_Speed[LD] * 0.104719775f + k4 * Chasssis_Motor_PID[LD].GetOutput() * 0.001f * Chasssis_Motor_PID[LD].GetOutput() * 0.001f + k5 * Motor_Target_Speed[LD] * 0.104719775f * Motor_Target_Speed[LD] * 0.104719775f;
+	Motor_Power[RD] = k0 + k1 * abs(Chasssis_Motor_PID[RD].GetOutput()) * 0.001f + k2 * abs(Motor_Target_Speed[RD] * 0.104719775f) + k3 * Chasssis_Motor_PID[RD].GetOutput() * 0.001f * Motor_Target_Speed[RD] * 0.104719775f + k4 * Chasssis_Motor_PID[RD].GetOutput() * 0.001f * Chasssis_Motor_PID[RD].GetOutput() * 0.001f + k5 * Motor_Target_Speed[RD] * 0.104719775f * Motor_Target_Speed[RD] * 0.104719775f;
+
+	Chassis_Future_Power = Motor_Power[LU] + Motor_Power[RU] + Motor_Power[LD] + Motor_Power[RD];
+
+	float PowerLimit;
+    Chassis_PowerLimit_PID.Generate(Chassis_Future_Power,Chassis_TargetPower);
+	if (Chassis_PowerLimit_PID.GetOutput() < 0)
+	{
+		PowerLimit = 1.00000001f - abs(Chassis_PowerLimit_PID.GetOutput());
+		
+	}
+	else{
+		PowerLimit = abs(Chassis_PowerLimit_PID.GetOutput());
+	}
+	
 
 	// 将 PID 计算结果给电机
-	Chassis_Motor[LU]->SetCurrent(Chasssis_Motor_PID[LU].GetOutput());  //  / 6.5f
-	Chassis_Motor[RU]->SetCurrent(Chasssis_Motor_PID[RU].GetOutput());  //  / 6.5f
-	Chassis_Motor[LD]->SetCurrent(Chasssis_Motor_PID[LD].GetOutput());  //  / 6.5f
-	Chassis_Motor[RD]->SetCurrent(Chasssis_Motor_PID[RD].GetOutput());  //  / 6.5f
+	Chassis_Motor[LU]->SetCurrent(Chasssis_Motor_PID[LU].GetOutput() * PowerLimit);  
+	Chassis_Motor[RU]->SetCurrent(Chasssis_Motor_PID[RU].GetOutput() * PowerLimit);  
+	Chassis_Motor[LD]->SetCurrent(Chasssis_Motor_PID[LD].GetOutput() * PowerLimit);  
+	Chassis_Motor[RD]->SetCurrent(Chasssis_Motor_PID[RD].GetOutput() * PowerLimit);  
+
+	// Chassis_Motor[LU]->SetCurrent(Chasssis_Motor_PID[LU].GetOutput());  
+	// Chassis_Motor[RU]->SetCurrent(Chasssis_Motor_PID[RU].GetOutput());  
+	// Chassis_Motor[LD]->SetCurrent(Chasssis_Motor_PID[LD].GetOutput());  
+	// Chassis_Motor[RD]->SetCurrent(Chasssis_Motor_PID[RD].GetOutput());  
+
+
 } 
 
 
@@ -537,6 +601,20 @@ void Chassis_t::Generate(void) {
 			break;
 
 		case CHASSIS_FOLLOW_GIMBAL:                  // 底盘跟随云台
+
+		    if(ChassisBehaviour_Last == CHASSIS_SPIN){
+				chassis_spin_flag = 1;
+				time_spin = 0; 
+			}
+			if(chassis_spin_flag == 1){
+				time_spin++;
+			}
+			
+			if(time_spin > 100 && chassis_spin_flag == 1){
+				chassis_spin_flag = 0;
+			}
+
+
 
 			Chassis_Target_Speed.Z = -Chassis_Follow_PID.GenerateRing(Yaw_RelativeAngle, 0, 2*pi);  // 跟随
 			// FK_ChassisSpeed();

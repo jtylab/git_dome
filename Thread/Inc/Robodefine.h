@@ -43,7 +43,7 @@
 
 
 #define Kf        0.0007f                       //底盘相对角度前馈可以使小陀螺模式时做到X，Y线速度方向不变
-#define Smallgyro_speed     1200.0f             //小陀螺转速
+#define Smallgyro_speed     1800.0f             //小陀螺转速
 #define BigGimbal_ZeroMechanicalAngle  8190      //机械零点(0~8191)
 #define BigGimbal_ZeroMechanicalAngle_two  4095      //机械零点(0~8191)
 
@@ -53,6 +53,17 @@
 #define C_Board_CAN_Port 2                  //双C板通信CAN端口号
 #define C_Board_CAN_ID (uint32_t)0x123UL    //双C板通信CAN ID
 #define DM_IMU__CAN_ID (uint32_t)0x321UL    //
+
+
+//底盘功率计算系数
+#define k0 0.6641993412640775f
+#define k1 0.006444284468539646f
+#define k2 0.0001423857226262331f
+#define k3 0.017644430204543864f
+#define k4 0.1650143850678086f
+#define k5 3.096721772539512e-05f
+
+
 
 #define C_Board_CAN_ThreadFlag1 0x01      //双C板通信线程任务通知Flag
 
