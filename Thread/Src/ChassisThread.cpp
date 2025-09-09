@@ -11,7 +11,9 @@
  */
 #include "ChassisThread.h"
 
-// float Vofabuf[4]={0};
+float Vofabuf[6]={0};
+
+
 Chassis_t Chassis;
 LPF_t LPF_imu , LPF_Gimbal_speed;
 uint8_t time_spin = 0;
@@ -44,7 +46,7 @@ void Chassis_t::Chassis_Init(RM_Motor_t* Motor_LU, RM_Motor_t* Motor_RU, RM_Moto
 
 	Chassis_Zeropoint_Calibration.Init(-1, 0, 0,0, 4,3000, 16383, 0);
 
-	Chassis_PowerLimit_PID.Init(0.01, 0.1, 0, 0,4, 0.4, 1);
+	Chassis_PowerLimit_PID.Init(0.01, 0.1, 0.01, 0,4, 0.4, 1);
 }
 
 
@@ -535,10 +537,15 @@ void  Chassis_t::Calculate_MotorPID(void){
 
 
 	float Motor_Power[4];
-	Motor_Power[LU] = k0 + k1 * abs(Chasssis_Motor_PID[LU].GetOutput()) * 0.001f + k2 * abs(Motor_Target_Speed[LU] * 0.104719775f) + k3 * Chasssis_Motor_PID[LU].GetOutput() * 0.001f * Motor_Target_Speed[LU] * 0.104719775f + k4 * Chasssis_Motor_PID[LU].GetOutput() * 0.001f * Chasssis_Motor_PID[LU].GetOutput() * 0.001f + k5 * Motor_Target_Speed[LU] * 0.104719775f * Motor_Target_Speed[LU] * 0.104719775f;
-	Motor_Power[RU] = k0 + k1 * abs(Chasssis_Motor_PID[RU].GetOutput()) * 0.001f + k2 * abs(Motor_Target_Speed[RU] * 0.104719775f) + k3 * Chasssis_Motor_PID[RU].GetOutput() * 0.001f * Motor_Target_Speed[RU] * 0.104719775f + k4 * Chasssis_Motor_PID[RU].GetOutput() * 0.001f * Chasssis_Motor_PID[RU].GetOutput() * 0.001f + k5 * Motor_Target_Speed[RU] * 0.104719775f * Motor_Target_Speed[RU] * 0.104719775f;
-	Motor_Power[LD] = k0 + k1 * abs(Chasssis_Motor_PID[LD].GetOutput()) * 0.001f + k2 * abs(Motor_Target_Speed[LD] * 0.104719775f) + k3 * Chasssis_Motor_PID[LD].GetOutput() * 0.001f * Motor_Target_Speed[LD] * 0.104719775f + k4 * Chasssis_Motor_PID[LD].GetOutput() * 0.001f * Chasssis_Motor_PID[LD].GetOutput() * 0.001f + k5 * Motor_Target_Speed[LD] * 0.104719775f * Motor_Target_Speed[LD] * 0.104719775f;
-	Motor_Power[RD] = k0 + k1 * abs(Chasssis_Motor_PID[RD].GetOutput()) * 0.001f + k2 * abs(Motor_Target_Speed[RD] * 0.104719775f) + k3 * Chasssis_Motor_PID[RD].GetOutput() * 0.001f * Motor_Target_Speed[RD] * 0.104719775f + k4 * Chasssis_Motor_PID[RD].GetOutput() * 0.001f * Chasssis_Motor_PID[RD].GetOutput() * 0.001f + k5 * Motor_Target_Speed[RD] * 0.104719775f * Motor_Target_Speed[RD] * 0.104719775f;
+	// Motor_Power[LU] = k0 + k1 * abs(Chasssis_Motor_PID[LU].GetOutput() * 0.8f) * 0.001f + k2 * abs(Motor_Target_Speed[LU] * 0.104719775f) + k3 * Chasssis_Motor_PID[LU].GetOutput() * 0.8f * 0.001f * Motor_Target_Speed[LU] * 0.104719775f + k4 * Chasssis_Motor_PID[LU].GetOutput() * 0.8f * 0.001f * Chasssis_Motor_PID[LU].GetOutput() * 0.8f * 0.001f + k5 * Motor_Target_Speed[LU] * 0.104719775f * Motor_Target_Speed[LU] * 0.104719775f;
+	// Motor_Power[RU] = k0 + k1 * abs(Chasssis_Motor_PID[RU].GetOutput() * 0.8f) * 0.001f + k2 * abs(Motor_Target_Speed[RU] * 0.104719775f) + k3 * Chasssis_Motor_PID[RU].GetOutput() * 0.8f * 0.001f * Motor_Target_Speed[RU] * 0.104719775f + k4 * Chasssis_Motor_PID[RU].GetOutput() * 0.8f * 0.001f * Chasssis_Motor_PID[RU].GetOutput() * 0.8f * 0.001f + k5 * Motor_Target_Speed[RU] * 0.104719775f * Motor_Target_Speed[RU] * 0.104719775f;
+	// Motor_Power[LD] = k0 + k1 * abs(Chasssis_Motor_PID[LD].GetOutput() * 0.8f) * 0.001f + k2 * abs(Motor_Target_Speed[LD] * 0.104719775f) + k3 * Chasssis_Motor_PID[LD].GetOutput() * 0.8f * 0.001f * Motor_Target_Speed[LD] * 0.104719775f + k4 * Chasssis_Motor_PID[LD].GetOutput() * 0.8f * 0.001f * Chasssis_Motor_PID[LD].GetOutput() * 0.8f * 0.001f + k5 * Motor_Target_Speed[LD] * 0.104719775f * Motor_Target_Speed[LD] * 0.104719775f;
+	// Motor_Power[RD] = k0 + k1 * abs(Chasssis_Motor_PID[RD].GetOutput() * 0.8f) * 0.001f + k2 * abs(Motor_Target_Speed[RD] * 0.104719775f) + k3 * Chasssis_Motor_PID[RD].GetOutput() * 0.8f * 0.001f * Motor_Target_Speed[RD] * 0.104719775f + k4 * Chasssis_Motor_PID[RD].GetOutput() * 0.8f * 0.001f * Chasssis_Motor_PID[RD].GetOutput() * 0.8f * 0.001f + k5 * Motor_Target_Speed[RD] * 0.104719775f * Motor_Target_Speed[RD] * 0.104719775f;
+
+	Motor_Power[LU] = k0 + k1 * abs((float)Chassis_Motor[LU]->GetTorqueCurrent()) * 0.001f + k2 * abs(Motor_Target_Speed[LU] * 0.104719775f) + k3 * (float)Chassis_Motor[LU]->GetTorqueCurrent() * 0.001f * Motor_Target_Speed[LU] * 0.104719775f + k4 * (float)Chassis_Motor[LU]->GetTorqueCurrent() * 0.001f * (float)Chassis_Motor[LU]->GetTorqueCurrent() * 0.001f + k5 * Motor_Target_Speed[LU] * 0.104719775f * Motor_Target_Speed[LU] * 0.104719775f;
+	Motor_Power[RU] = k0 + k1 * abs((float)Chassis_Motor[RU]->GetTorqueCurrent()) * 0.001f + k2 * abs(Motor_Target_Speed[RU] * 0.104719775f) + k3 * (float)Chassis_Motor[RU]->GetTorqueCurrent() * 0.001f * Motor_Target_Speed[RU] * 0.104719775f + k4 * (float)Chassis_Motor[RU]->GetTorqueCurrent() * 0.001f * (float)Chassis_Motor[RU]->GetTorqueCurrent() * 0.001f + k5 * Motor_Target_Speed[RU] * 0.104719775f * Motor_Target_Speed[RU] * 0.104719775f;
+	Motor_Power[LD] = k0 + k1 * abs((float)Chassis_Motor[LD]->GetTorqueCurrent()) * 0.001f + k2 * abs(Motor_Target_Speed[LD] * 0.104719775f) + k3 * (float)Chassis_Motor[LD]->GetTorqueCurrent() * 0.001f * Motor_Target_Speed[LD] * 0.104719775f + k4 * (float)Chassis_Motor[LD]->GetTorqueCurrent() * 0.001f * (float)Chassis_Motor[LD]->GetTorqueCurrent() * 0.001f + k5 * Motor_Target_Speed[LD] * 0.104719775f * Motor_Target_Speed[LD] * 0.104719775f;
+	Motor_Power[RD] = k0 + k1 * abs((float)Chassis_Motor[RD]->GetTorqueCurrent()) * 0.001f + k2 * abs(Motor_Target_Speed[RD] * 0.104719775f) + k3 * (float)Chassis_Motor[RD]->GetTorqueCurrent() * 0.001f * Motor_Target_Speed[RD] * 0.104719775f + k4 * (float)Chassis_Motor[RD]->GetTorqueCurrent() * 0.001f * (float)Chassis_Motor[RD]->GetTorqueCurrent() * 0.001f + k5 * Motor_Target_Speed[RD] * 0.104719775f * Motor_Target_Speed[RD] * 0.104719775f;
 
 	Chassis_Future_Power = Motor_Power[LU] + Motor_Power[RU] + Motor_Power[LD] + Motor_Power[RD];
 
@@ -546,13 +553,22 @@ void  Chassis_t::Calculate_MotorPID(void){
     Chassis_PowerLimit_PID.Generate(Chassis_Future_Power,Chassis_TargetPower);
 	if (Chassis_PowerLimit_PID.GetOutput() < 0)
 	{
-		PowerLimit = 1.00000001f - abs(Chassis_PowerLimit_PID.GetOutput());
+		PowerLimit = 1 - abs(Chassis_PowerLimit_PID.GetOutput());
 		
 	}
 	else{
 		PowerLimit = abs(Chassis_PowerLimit_PID.GetOutput());
 	}
-	
+
+
+	Chassis_Power_Calculation();
+
+	*((uint32_t *)&Vofabuf[5]) = 0x7F800000U;
+	Vofabuf[0] = 100;
+	Vofabuf[1] = 80;
+	Vofabuf[2] = Chassis_Future_Power;
+	Vofabuf[3] = Chassis_CurrentPower;
+	BSP_UART_SendMessage(2,(uint8_t*)Vofabuf, sizeof(Vofabuf));
 
 	// 将 PID 计算结果给电机
 	Chassis_Motor[LU]->SetCurrent(Chasssis_Motor_PID[LU].GetOutput() * PowerLimit);  

@@ -11,7 +11,7 @@
  */
 #include "MainThread.h"
 
-float Vofabuf[5]={0};
+// float Vofabuf[5]={0};
 
 uint16_t time = 0;
 
@@ -41,7 +41,7 @@ void MainTask(void *argument) {
 	Chassis->Chassis_Init(&ChassisMotor_LU, &ChassisMotor_RU, &ChassisMotor_LD, &ChassisMotor_RD);
 	Chassis->Gimbal_Init(&GimbalMotor_BigYaw,&GimbalMotor_smallYaw);
 
-    *((uint32_t *)&Vofabuf[4]) = 0x7F800000U;
+    // *((uint32_t *)&Vofabuf[4]) = 0x7F800000U;
 	osDelay(3500);
 	vofa_usart_Init();
 
@@ -53,9 +53,9 @@ void MainTask(void *argument) {
 		LPF_imu.Generate(imu->yaw);
 		LPF_Gimbal_speed.Generate(Chassis->Gimbal_Motor[Gimbal_BigYawMotor]->GetSpeed());
 
-		Vofabuf[0] = Chassis->Chassis_CurrentPower;
-		Vofabuf[1] = 100.0f;
-		Vofabuf[2] = Chassis->Chassis_Future_Power;
+		// Vofabuf[0] = Chassis->Chassis_CurrentPower;
+		// Vofabuf[1] = 100.0f;
+		// Vofabuf[2] = Chassis->Chassis_Future_Power;
 
 		// Vofabuf[0] = Chassis->Gimbal_Target_Angle[Imu];
 		// Vofabuf[1] = LPF_imu.GetOutput();
@@ -71,9 +71,9 @@ void MainTask(void *argument) {
 		{
 			Chassis->Gimbal_SelfStabilizing(Imu);
 		}
-		Chassis->Chassis_Power_Calculation();
+		// Chassis->Chassis_Power_Calculation();
 
-		BSP_UART_SendMessage(2,(uint8_t*)Vofabuf, sizeof(Vofabuf));
+		// BSP_UART_SendMessage(2,(uint8_t*)Vofabuf, sizeof(Vofabuf));
 
 
 		// Chassis->Gimbal_Motor_PID[Gimbal_BigYawAngle].SetPID(PID_Data->kp,PID_Data->ki,PID_Data->kd);
