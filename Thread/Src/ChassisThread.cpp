@@ -166,16 +166,15 @@ void Chassis_t::UpdataRelativeAttitude_Gyroscope(void){
 void Chassis_t::UpdataRelativeAttitude_Mechanical(void){
 
 
-
 	RelativeAngle = Gimbal_Motor[Gimbal_BigYawMotor]->GetAngle() * 1.0f - Gimbal_Motor[Gimbal_BigYawMotor]->GetZero_MechanicalAngle() * 1.0f;
 	RelativeAngle = (RelativeAngle * 360.0f) / 8192.0f;
 	if (RelativeAngle < -180)
 	{
-		RelativeAngle = RelativeAngle + 360;
+		RelativeAngle += 360;
 	}
 	else if (RelativeAngle > 180)
 	{
-		RelativeAngle = RelativeAngle - 360;
+		RelativeAngle -= 360;
 	}
 	RelativeAngle = (float)((RelativeAngle * pi / 180.0f));
 
@@ -184,18 +183,20 @@ void Chassis_t::UpdataRelativeAttitude_Mechanical(void){
 	RelativeAngle_two = (RelativeAngle_two * 360.0f) / 8192.0f;
 	if (RelativeAngle_two < -180)
 	{
-		RelativeAngle_two = RelativeAngle_two + 360;
+		RelativeAngle_two += 360;
 	}
 	else if (RelativeAngle_two > 180)
 	{
-		RelativeAngle_two = RelativeAngle_two - 360;
+		RelativeAngle_two -= 360;
 	}
 	RelativeAngle_two = (float)((RelativeAngle_two * pi / 180.0f));
 
 
+
+	//让小陀螺到底盘跟随切换同方向，不超功率
+
 	// if(chassis_spin_flag == 1){
 	
-		
 	// 	if(RelativeAngle_two <= 0){
 	// 		Chassis_t::Yaw_RelativeAngle = RelativeAngle_two;
 	// 		BigGimbal_ZeroMechanical = 1;
@@ -237,9 +238,8 @@ void Chassis_t::UpdataRelativeAttitude_Mechanical(void){
 		break;
 	}
 	// }
-	
-	
-	
+
+	Chassis_t::Yaw_RelativeAngle += Chassis_Target_Speed.Z * 0.0004f;  // 预测补偿
 	
 }
 
@@ -472,10 +472,9 @@ void Chassis_t::Gimbal_SelfStabilizing(Control_type control_type){
 		// }
 		// float BigYawTargetMechanicalAngle = Gimbal_Motor[Gimbal_BigYaw]->GetZero_MechanicalAngle() + (Gimbal_Target_Angle[Gimbal_BigYaw] - Chassis.Gimbal_Presently_Attitude.Yaw_Angle) * Unit_Angle;       //   TargetMechanicalAngle = (0,8191)
 
-		LPF_imu.Init(3,10);
+
         LPF_Gimbal_speed.Init(3,10);
 
-	    LPF_imu.Generate(imu->yaw);
 		LPF_Gimbal_speed.Generate(Gimbal_Motor[Gimbal_BigYawMotor]->GetSpeed());
 		// if(Chassis.Gimbal_Target_Speed.Z == 0){
 			Gimbal_Motor_PID[Gimbal_BigYawAngle].GenerateRing(imu->yaw,Gimbal_Target_Angle[Imu],360);
@@ -508,25 +507,16 @@ void  Chassis_t::Calculate_MotorPID(void){
     float MotorSpeed_Max, SpeedLimitK = 1.0f, K_LimitByPwr = 1.0f;
 
     // 限速，保持各轮子之间的速度比
-	MotorSpeed_Max = 0;
-	for (int i = 0; i < 4; i++) {
-		if (fabs(Motor_Target_Speed[i]) > MotorSpeed_Max) {
-			MotorSpeed_Max = fabs(Motor_Target_Speed[i]);
-		}
-	}
-	if (MotorSpeed_Max > 8191) {
-		SpeedLimitK = 8191.0f / MotorSpeed_Max;
-	} else {
-		SpeedLimitK = 1.0f;
-	}
-
-	// // 功率限制
-	// if (Prv_Flag_PowerLimit) {
-	// 	Prv_PID_PowerLimit.Generate(Chassis_Power, Prv_PowerLimit_Target);
-	// 	K_LimitByPwr = LimitBoth(1 + Prv_PID_PowerLimit.GetOutput(), 1.0, 0.1);
-	// 	// K_LimitByPwr = 1.0f;
+	// MotorSpeed_Max = 0;
+	// for (int i = 0; i < 4; i++) {
+	// 	if (fabs(Motor_Target_Speed[i]) > MotorSpeed_Max) {
+	// 		MotorSpeed_Max = fabs(Motor_Target_Speed[i]);
+	// 	}
+	// }
+	// if (MotorSpeed_Max > 8191) {
+	// 	SpeedLimitK = 8191.0f / MotorSpeed_Max;
 	// } else {
-	// 	K_LimitByPwr = 1.0f;
+	// 	SpeedLimitK = 1.0f;
 	// }
 
 	// 计算速度环 PID
@@ -618,36 +608,38 @@ void Chassis_t::Generate(void) {
 
 		case CHASSIS_FOLLOW_GIMBAL:                  // 底盘跟随云台
 
-		    if(ChassisBehaviour_Last == CHASSIS_SPIN){
-				chassis_spin_flag = 1;
-				time_spin = 0; 
-			}
-			if(chassis_spin_flag == 1){
-				time_spin++;
-			}
+
+
+
+		    //让小陀螺到底盘跟随切换同方向，不超功率
+
+		    // if(ChassisBehaviour_Last == CHASSIS_SPIN){
+			// 	chassis_spin_flag = 1;
+			// 	time_spin = 0; 
+			// }
+			// if(chassis_spin_flag == 1){
+			// 	time_spin++;
+			// }
 			
-			if(time_spin > 100 && chassis_spin_flag == 1){
-				chassis_spin_flag = 0;
-			}
+			// if(time_spin > 100 && chassis_spin_flag == 1){
+			// 	chassis_spin_flag = 0;
+			// }
 
 
 
 			Chassis_Target_Speed.Z = -Chassis_Follow_PID.GenerateRing(Yaw_RelativeAngle, 0, 2*pi);  // 跟随
 			// FK_ChassisSpeed();
 			CalcSpeedWithRelativeAngle();
-			IK_MotorSpeed();
-			//BigYaw_MotorSpeed(Gimbal_BigYaw);
-		
+			IK_MotorSpeed();	
 
 			ChassisBehaviour_Last = CHASSIS_FOLLOW_GIMBAL;
 			break;
 
 		case CHASSIS_SPIN:                            // 小陀螺运动
 		    Chassis_Target_Speed.Z = Smallgyro_speed;
-			FK_ChassisSpeed();
+			// FK_ChassisSpeed();
 			CalcSpeedWithRelativeAngle();
 			IK_MotorSpeed();
-			// BigYaw_MotorSpeed(Gimbal_BigYaw);
 			ChassisBehaviour_Last = CHASSIS_SPIN;
 			break;
 	}
@@ -660,8 +652,6 @@ void Chassis_t::Generate(void) {
  */
 void ChassisTask(void* argument) {
     
-	
-	// Chassis.GimbalAngle_Calibration_Start();
 
 	while (1) {
 		Chassis.Generate();

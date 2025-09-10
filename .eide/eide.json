@@ -232,6 +232,9 @@
                       },
                       {
                         "path": "Thread/Src/C_Board_CAN.cpp"
+                      },
+                      {
+                        "path": "Thread/Src/Finite_State_Machine.cpp"
                       }
                     ],
                     "folders": []

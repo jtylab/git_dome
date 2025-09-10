@@ -45,13 +45,12 @@ void MainTask(void *argument) {
 	osDelay(3500);
 	vofa_usart_Init();
 
-    LPF_t LPF_imu,LPF_Gimbal_speed;
-	LPF_imu.Init(3,10);
+    LPF_t LPF_Gimbal_speed;
+
 	LPF_Gimbal_speed.Init(3,10);
 	
 	while (1) {
-		LPF_imu.Generate(imu->yaw);
-		LPF_Gimbal_speed.Generate(Chassis->Gimbal_Motor[Gimbal_BigYawMotor]->GetSpeed());
+		// LPF_Gimbal_speed.Generate(Chassis->Gimbal_Motor[Gimbal_BigYawMotor]->GetSpeed());
 
 		// Vofabuf[0] = Chassis->Chassis_CurrentPower;
 		// Vofabuf[1] = 100.0f;
@@ -64,13 +63,10 @@ void MainTask(void *argument) {
 
 		Chassis->UpdataRelativeAttitude_Mechanical();
 
-		if(Chassis->ChassisBehaviour == CHASSIS_SPIN || Chassis->ChassisBehaviour == CHASSIS_FOLLOW_GIMBAL){
+		if(Chassis->ChassisBehaviour == CHASSIS_SPIN || Chassis->ChassisBehaviour == CHASSIS_FOLLOW_GIMBAL || Chassis->ChassisBehaviour == CHASSIS_NO_FOLLOW){
 			Chassis->Gimbal_SelfStabilizing(Imu);
 		}
-		if (Chassis->ChassisBehaviour == CHASSIS_NO_FOLLOW)
-		{
-			Chassis->Gimbal_SelfStabilizing(Imu);
-		}
+
 		// Chassis->Chassis_Power_Calculation();
 
 		// BSP_UART_SendMessage(2,(uint8_t*)Vofabuf, sizeof(Vofabuf));
