@@ -84,6 +84,8 @@ enum Gimbal_Control_Type{
 
 class Chassis_t {
 	public:
+		//DR16底盘小陀螺变化
+		float DR16_Chassis_Smallgyro_speed;
 
 	    //底盘当前功率
 		float Chassis_CurrentPower;
@@ -210,6 +212,7 @@ class Chassis_t {
 		void GimbalAngle_Calibration_Sport(void);
 		void UpadteGimbalAngleError(void);
 		float Chassis_Power_Calculation(void);
+		void SetSmallgyroSpeed(float DR16_Smallgyro_Speed);
 		
 };
 

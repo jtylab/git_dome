@@ -37,7 +37,7 @@ typedef struct CAN_RxData_t{
     float Gimbal_Target_Speed_X;
     float Gimbal_Target_Speed_Y;
     float Gimbal_Target_Speed_Z;
-    float Gimbal_Target_Angle;
+    float Chassis_Smallgyro_speed;
 }CAN_RxData_t;
 
 

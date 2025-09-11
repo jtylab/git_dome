@@ -10,10 +10,9 @@
  *
  */
 #include "MainThread.h"
-
+uint16_t time = 0;
 // float Vofabuf[5]={0};
 
-uint16_t time = 0;
 
 
 RM_Motor_t ChassisMotor_LU(1, RM_Motor_t::M3508, 1);
@@ -61,11 +60,6 @@ void MainTask(void *argument) {
 		// Vofabuf[2] = imu->yaw;
 		
 
-		Chassis->UpdataRelativeAttitude_Mechanical();
-
-		if(Chassis->ChassisBehaviour == CHASSIS_SPIN || Chassis->ChassisBehaviour == CHASSIS_FOLLOW_GIMBAL || Chassis->ChassisBehaviour == CHASSIS_NO_FOLLOW){
-			Chassis->Gimbal_SelfStabilizing(Imu);
-		}
 
 		// Chassis->Chassis_Power_Calculation();
 
@@ -98,11 +92,11 @@ void MainTask(void *argument) {
 		// 	time = 0;
 		// }
 
-		time++;
+		// time++;
 			
 		 
 		
-		 osDelay(3);
+		 osDelay(10);
 	}
 }
 

@@ -35,7 +35,7 @@ void C_Board_CAN_Callback(uint32_t ID, uint8_t* Data){
 		memcpy(&Chassis_CAN_RxData.Gimbal_Target_Speed_Z,Data,sizeof(Data));
 	}
     if(ID == C_Board_CAN_ID+5){ 
-		memcpy(&Chassis_CAN_RxData.Gimbal_Target_Angle,Data,sizeof(Data));    
+		memcpy(&Chassis_CAN_RxData.Chassis_Smallgyro_speed,Data,sizeof(Data));    
 	}
 
  }
@@ -56,15 +56,11 @@ void Chassis_C_CANTask(void *argument){
         Chassis->SetBehaviour((ChassisBehaviour_e)Chassis_CAN_RxData.ChassisBehaviour);
         Chassis->SetChassisTargetSpeed(Chassis_CAN_RxData.Gimbal_Target_Speed_X, Chassis_CAN_RxData.Gimbal_Target_Speed_Y, 0);
         Chassis->SetGimbalTargetAngle(Imu,Speed_Control,Chassis_CAN_RxData.Gimbal_Target_Speed_Z);
-
+        Chassis->SetSmallgyroSpeed(Chassis_CAN_RxData.Chassis_Smallgyro_speed);
 
         // Chassis->SetGimbalTargetSpeed(Chassis_CAN_RxData.Gimbal_Target_Speed_Z);
         
-        if (Chassis_CAN_RxData.Gimbal_Target_Angle != 0)
-        {
-          // Chassis->SetGimbalTargetAngle(Imu,Position_Control,imu->yaw);
-          Chassis->SetGimbalTargetAngle(Machine,Position_Control,Chassis->Gimbal_Motor[Gimbal_BigYawMotor]->GetAngle());
-        }
+        
         
         Chassis_CAN_TxData.Yaw_RelativeAngle =  Chassis->Yaw_RelativeAngle;
 		BSP_CAN_SendStandard8Data(C_Board_CAN_Port,C_Board_CAN_ID,(uint8_t *)&Chassis_CAN_TxData);

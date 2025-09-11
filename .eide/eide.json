@@ -163,6 +163,9 @@
                   },
                   {
                     "path": "Hardware/Src/RMD_L_7025.cpp"
+                  },
+                  {
+                    "path": "Hardware/Src/LK_Motor.cpp"
                   }
                 ],
                 "folders": [
@@ -232,9 +235,6 @@
                       },
                       {
                         "path": "Thread/Src/C_Board_CAN.cpp"
-                      },
-                      {
-                        "path": "Thread/Src/Finite_State_Machine.cpp"
                       }
                     ],
                     "folders": []

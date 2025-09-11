@@ -20,7 +20,7 @@ uint8_t c = 0;
 
 #define CAN_NUM 2
 
-#define CB_FUNC_NUM     7
+#define CB_FUNC_NUM     9
 #define CB_FUNC_RAW_NUM 3
 
 

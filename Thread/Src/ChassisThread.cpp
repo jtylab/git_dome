@@ -87,6 +87,15 @@ void Chassis_t::Gimbal_Init(RM_Motor_t* Gimbal_Motor1, RM_Motor_t* Gimbal_Motor2
 	
 }
 
+/**
+ * @brief 底盘小陀螺速度设置函数
+ * @param Smallgyro_speed 小陀螺速度
+ */
+void Chassis_t::SetSmallgyroSpeed(float DR16_Smallgyro_Speed){
+	DR16_Chassis_Smallgyro_speed = DR16_Smallgyro_Speed;
+}
+
+
 /**  
  * @brief 底盘与云台跟随模式累计角度差归零(开机启动时)
  * 
@@ -238,8 +247,23 @@ void Chassis_t::UpdataRelativeAttitude_Mechanical(void){
 		break;
 	}
 	// }
-
-	Chassis_t::Yaw_RelativeAngle += Chassis_Target_Speed.Z * 0.0004f;  // 预测补偿
+    if(ChassisBehaviour == CHASSIS_SPIN){
+		if(Chassis_Target_Speed.Z > 800 && Chassis_Target_Speed.Z <= 1000){
+			Chassis_t::Yaw_RelativeAngle += Chassis_Target_Speed.Z * 0.00009f;  // 预测补偿
+		}
+		if(Chassis_Target_Speed.Z > 1000 && Chassis_Target_Speed.Z <= 1200){
+			Chassis_t::Yaw_RelativeAngle += Chassis_Target_Speed.Z * 0.0001f;  // 预测补偿
+		}
+		if(Chassis_Target_Speed.Z > 1200 && Chassis_Target_Speed.Z <= 1400){
+			Chassis_t::Yaw_RelativeAngle += Chassis_Target_Speed.Z * 0.00014f;  // 预测补偿
+		}
+		if(Chassis_Target_Speed.Z > 1400 && Chassis_Target_Speed.Z <= 1600){
+			Chassis_t::Yaw_RelativeAngle += Chassis_Target_Speed.Z * 0.00018f;  // 预测补偿
+		}
+		if(Chassis_Target_Speed.Z > 1600){
+			Chassis_t::Yaw_RelativeAngle += Chassis_Target_Speed.Z * 0.00022f;  // 预测补偿
+		}
+	}
 	
 }
 
@@ -636,7 +660,7 @@ void Chassis_t::Generate(void) {
 			break;
 
 		case CHASSIS_SPIN:                            // 小陀螺运动
-		    Chassis_Target_Speed.Z = Smallgyro_speed;
+		    Chassis_Target_Speed.Z = Smallgyro_speed + DR16_Chassis_Smallgyro_speed;
 			// FK_ChassisSpeed();
 			CalcSpeedWithRelativeAngle();
 			IK_MotorSpeed();
@@ -654,8 +678,13 @@ void ChassisTask(void* argument) {
     
 
 	while (1) {
+		if(Chassis.ChassisBehaviour == CHASSIS_SPIN || Chassis.ChassisBehaviour == CHASSIS_FOLLOW_GIMBAL || Chassis.ChassisBehaviour == CHASSIS_NO_FOLLOW){
+			Chassis.Gimbal_SelfStabilizing(Imu);
+		}
+
+		Chassis.UpdataRelativeAttitude_Mechanical();
 		Chassis.Generate();
-		osDelay(4);
+		osDelay(6);
 	}
 }
 
