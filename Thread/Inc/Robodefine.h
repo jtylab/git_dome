@@ -47,6 +47,8 @@
 #define BigGimbal_ZeroMechanicalAngle  8190      //机械零点(0~8191)
 #define BigGimbal_ZeroMechanicalAngle_two  4095      //机械零点(0~8191)
 
+#define Chassis_pitch_kf   0.01f      // pitch角度前馈系数
+#define Chassis_roll_kf   0.01f         // roll角度前馈系数
 
 #define Scaler_Chassis 400.0f  //DR16遥控器灵敏度
 

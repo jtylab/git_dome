@@ -213,6 +213,7 @@ class Chassis_t {
 		void UpadteGimbalAngleError(void);
 		float Chassis_Power_Calculation(void);
 		void SetSmallgyroSpeed(float DR16_Smallgyro_Speed);
+		void Chassis_Gravity_feed(void);
 		
 };
 

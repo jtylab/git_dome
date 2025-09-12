@@ -524,6 +524,19 @@ void Chassis_t::Gimbal_SelfStabilizing(Control_type control_type){
 }
 
 /**
+ * @brief 重力前馈
+ * 
+ */
+void Chassis_t::Chassis_Gravity_feed(void){
+	imu_t* imu = imuPoint();
+
+	Chassis_Target_Speed.Y += imu->pitch * Chassis_pitch_kf;
+	Chassis_Target_Speed.X += imu->roll  * Chassis_roll_kf;
+}
+
+
+
+/**
  * @brief 底盘电机运动
  * 
  */
@@ -626,7 +639,7 @@ void Chassis_t::Generate(void) {
 
 		case CHASSIS_NO_FOLLOW:                      // 底盘不跟随云台
 		    CalcSpeedWithRelativeAngle();
-			IK_MotorSpeed();
+			
 			ChassisBehaviour_Last = CHASSIS_NO_FOLLOW;
 			break;
 
@@ -654,7 +667,7 @@ void Chassis_t::Generate(void) {
 			Chassis_Target_Speed.Z = -Chassis_Follow_PID.GenerateRing(Yaw_RelativeAngle, 0, 2*pi);  // 跟随
 			// FK_ChassisSpeed();
 			CalcSpeedWithRelativeAngle();
-			IK_MotorSpeed();	
+				
 
 			ChassisBehaviour_Last = CHASSIS_FOLLOW_GIMBAL;
 			break;
@@ -663,11 +676,15 @@ void Chassis_t::Generate(void) {
 		    Chassis_Target_Speed.Z = Smallgyro_speed + DR16_Chassis_Smallgyro_speed;
 			// FK_ChassisSpeed();
 			CalcSpeedWithRelativeAngle();
-			IK_MotorSpeed();
+			;
 			ChassisBehaviour_Last = CHASSIS_SPIN;
 			break;
 	}
 
+	if(ChassisBehaviour != CHASSIS_ZERO_FORCE){
+		Chassis_Gravity_feed();
+		IK_MotorSpeed();
+	}
 	Calculate_MotorPID();
 }
 
