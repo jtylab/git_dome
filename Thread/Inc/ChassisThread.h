@@ -44,6 +44,7 @@
 #include "Referee.h"
 #include "SuperCap.h"
 #include "VOFA.h"
+#include "LK_Motor.h"
 
 #include "ChassisThread.h"
 #include "DebuggerThread.h"
@@ -99,6 +100,7 @@ class Chassis_t {
 		//底盘代码控制的电机
 		RM_Motor_t* Chassis_Motor[4];
 		RM_Motor_t* Gimbal_Motor[2];
+		LK_Motor_t* LK_9025;
 
 		//电机PID
 		PID_t Chasssis_Motor_PID[4];                 //只有四个电机的速度PID
@@ -195,7 +197,7 @@ class Chassis_t {
 			Prv_TransitionLPFq = 2.0f * pi * 0.004f * 1.0f;
 		}
 		void Chassis_Init(RM_Motor_t* Motor_LU, RM_Motor_t* Motor_RU, RM_Motor_t* Motor_LD, RM_Motor_t* Motor_RD);
-		void Gimbal_Init(RM_Motor_t* Gimbal_Motor1, RM_Motor_t* Gimbal_Motor2);
+		void Gimbal_Init(LK_Motor_t* Gimbal_Motor1, RM_Motor_t* Gimbal_Motor2);
 		void SetBehaviour(ChassisBehaviour_e Behaviour);
 		void UpdataRelativeAttitude_Gyroscope(void);
 		void UpdataRelativeAttitude_Mechanical(void);

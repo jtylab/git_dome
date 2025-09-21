@@ -38,8 +38,18 @@
  class LK_Motor_t{
     public:
         Struct_t Struct;
+        uint16_t MechanicalAngle;
 
-    void SetCurrent(int16_t iq);
+        
+   void SetZero_MechanicalAngle(uint16_t MechanicalAngle);
+   uint16_t GetZero_MechanicalAngle(void);
+
+   void SetCurrent(int16_t iq);
+   void SetSpeed(int32_t speed);
+   void SetAngle(uint8_t Direction , uint32_t Angle);
+   void SetPID(uint8_t p, uint8_t i);
+   uint16_t GetAngle(void);
+   int16_t GetSpeed(void);
  };
 
 

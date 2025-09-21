@@ -153,10 +153,11 @@ Referee_Init();
 
 vofa_usart_Init();
   DM_IMU_CAN_Init();
-  // RMD_L_7025_Init();
+
 
 
   RM_Motor_Init();
+  LK_Motor_Init();
   Referee_Init();
   // VTM_Init();
 

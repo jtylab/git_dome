@@ -57,22 +57,23 @@ void Chassis_t::Chassis_Init(RM_Motor_t* Motor_LU, RM_Motor_t* Motor_RU, RM_Moto
  * 
  * @param Gimbal_Motor 
  */
-void Chassis_t::Gimbal_Init(RM_Motor_t* Gimbal_Motor1, RM_Motor_t* Gimbal_Motor2){
-	Chassis_t::Gimbal_Motor[Gimbal_BigYawMotor]   = Gimbal_Motor1;
-	Chassis_t::Gimbal_Motor[Gimbal_SmallYawMotor] = Gimbal_Motor2;
+void Chassis_t::Gimbal_Init(LK_Motor_t* Gimbal_Motor1, RM_Motor_t* Gimbal_Motor2){
+	// Chassis_t::Gimbal_Motor[Gimbal_BigYawMotor]   = Gimbal_Motor1;
+	Chassis_t::LK_9025 = Gimbal_Motor1;
+	// Chassis_t::Gimbal_Motor[Gimbal_SmallYawMotor] = Gimbal_Motor2;
 
 	
 
     //Gimbal_Motor_PID[Gimbal_BigYawAngle].Init(10, 0 ,1, 0, 3, 4000, -1,0);
 	//Gimbal_Motor_PID[Gimbal_BigYawSpeed].Init(150, 10 ,0, 0, 3, 6000,19000);
 
-	 Gimbal_Motor_PID[Gimbal_BigYawAngle].Init(2, 0 ,300, 0, 3, 100, -1,0);
-	 Gimbal_Motor_PID[Gimbal_BigYawSpeed].Init(600,3.08,0, 0, 3, 20000,25000);
+	Gimbal_Motor_PID[Gimbal_BigYawAngle].Init(20, 0 ,0, 0, 3, 100, -1,0);
+	Gimbal_Motor_PID[Gimbal_BigYawSpeed].Init(4,0,120, 0, 3, 1000,2000); 
 	
 
-
-    Gimbal_Motor[Gimbal_BigYawMotor]->SetZero_MechanicalAngle(BigGimbal_ZeroMechanicalAngle);
+	LK_9025->SetZero_MechanicalAngle(BigGimbal_ZeroMechanicalAngle);
 	SetGimbalTargetAngle(Machine,Position_Control,BigGimbal_ZeroMechanicalAngle);
+
 	// Gimbal_Motor[Gimbal_SmallYaw]->SetZero_MechanicalAngle(Gimbal_Motor[Gimbal_SmallYaw]->GetAngle()); 
 
     // Gimbal_Zeropoint_Calibration[Gimbal_BigYawAngle].Init(0.1, 0, 0.2, 0, 2, 4000, -1,0);
@@ -105,9 +106,9 @@ void Chassis_t::GimbalAngle_Calibration_Start(void){
 	while (i)
 	{
 
-		Gimbal_Zeropoint_Calibration[Gimbal_BigYawAngle].GenerateRing(Gimbal_Motor[Gimbal_BigYawMotor]->GetAngle(),Gimbal_Motor[Gimbal_BigYawMotor]->GetZero_MechanicalAngle(),8191);
-		Gimbal_Zeropoint_Calibration[Gimbal_BigYawSpeed].Generate(Gimbal_Motor[Gimbal_BigYawMotor]->GetSpeed(),Gimbal_Zeropoint_Calibration[Gimbal_BigYawAngle].GetOutput());
-		Gimbal_Motor[Gimbal_BigYawMotor]->SetCurrent(Gimbal_Zeropoint_Calibration[Gimbal_BigYawSpeed].GetOutput());
+		Gimbal_Zeropoint_Calibration[Gimbal_BigYawAngle].GenerateRing(LK_9025->GetAngle(),LK_9025->GetZero_MechanicalAngle(),65535);
+		Gimbal_Zeropoint_Calibration[Gimbal_BigYawSpeed].Generate(LK_9025->GetSpeed(),Gimbal_Zeropoint_Calibration[Gimbal_BigYawAngle].GetOutput());
+		LK_9025->SetCurrent(Gimbal_Zeropoint_Calibration[Gimbal_BigYawSpeed].GetOutput());
 
 		i--;
 		osDelay(2);
@@ -123,9 +124,9 @@ void Chassis_t::GimbalAngle_Calibration_Sport(void){
 	while (i)
 	{
 
-		Gimbal_Zeropoint_Calibration[Gimbal_BigYawAngle].GenerateRing(Gimbal_Motor[Gimbal_BigYawMotor]->GetAngle(),Gimbal_Motor[Gimbal_BigYawMotor]->GetZero_MechanicalAngle(),8191);
-		Gimbal_Zeropoint_Calibration[Gimbal_BigYawSpeed].Generate(Gimbal_Motor[Gimbal_BigYawMotor]->GetSpeed(),Gimbal_Zeropoint_Calibration[Gimbal_BigYawAngle].GetOutput());
-		Gimbal_Motor[Gimbal_BigYawMotor]->SetCurrent(Gimbal_Zeropoint_Calibration[Gimbal_BigYawSpeed].GetOutput());
+		Gimbal_Zeropoint_Calibration[Gimbal_BigYawAngle].GenerateRing(LK_9025->GetAngle(),LK_9025->GetZero_MechanicalAngle(),65535);
+		Gimbal_Zeropoint_Calibration[Gimbal_BigYawSpeed].Generate(LK_9025->GetSpeed(),Gimbal_Zeropoint_Calibration[Gimbal_BigYawAngle].GetOutput());
+		LK_9025->SetCurrent(Gimbal_Zeropoint_Calibration[Gimbal_BigYawSpeed].GetOutput());
 
 		// Chassis_Target_Speed.Z = -Chassis_Zeropoint_Calibration.GenerateRing(Chassis.Gimbal_Motor[Gimbal_BigYawMotor]->GetAngle(), Chassis.Gimbal_Motor[Gimbal_BigYawMotor]->GetZero_MechanicalAngle(), 8191);  
 		// IK_MotorSpeed();
@@ -175,8 +176,8 @@ void Chassis_t::UpdataRelativeAttitude_Gyroscope(void){
 void Chassis_t::UpdataRelativeAttitude_Mechanical(void){
 
 
-	RelativeAngle = Gimbal_Motor[Gimbal_BigYawMotor]->GetAngle() * 1.0f - Gimbal_Motor[Gimbal_BigYawMotor]->GetZero_MechanicalAngle() * 1.0f;
-	RelativeAngle = (RelativeAngle * 360.0f) / 8192.0f;
+	RelativeAngle = (LK_9025->GetAngle() * 1.0f - LK_9025->GetZero_MechanicalAngle() * 1.0f);
+	RelativeAngle = (RelativeAngle * 360.0f) / 65535.0f;
 	if (RelativeAngle < -180)
 	{
 		RelativeAngle += 360;
@@ -186,84 +187,85 @@ void Chassis_t::UpdataRelativeAttitude_Mechanical(void){
 		RelativeAngle -= 360;
 	}
 	RelativeAngle = (float)((RelativeAngle * pi / 180.0f));
+    Chassis_t::Yaw_RelativeAngle = RelativeAngle;
+	BigGimbal_ZeroMechanical = 0;
+
+	// RelativeAngle_two = -(LK_9025->GetAngle() * 1.0f - (LK_9025->GetZero_MechanicalAngle() - 32768) * 1.0f);
+	// RelativeAngle_two = (RelativeAngle_two * 360.0f) / 65535.0f;
+	// if (RelativeAngle_two < -180)
+	// {
+	// 	RelativeAngle_two += 360;
+	// }
+	// else if (RelativeAngle_two > 180)
+	// {
+	// 	RelativeAngle_two -= 360;
+	// }
+	// RelativeAngle_two = (float)((RelativeAngle_two * pi / 180.0f));
 
 
-	RelativeAngle_two = Gimbal_Motor[Gimbal_BigYawMotor]->GetAngle() * 1.0f - (Gimbal_Motor[Gimbal_BigYawMotor]->GetZero_MechanicalAngle() - 4095) * 1.0f;
-	RelativeAngle_two = (RelativeAngle_two * 360.0f) / 8192.0f;
-	if (RelativeAngle_two < -180)
-	{
-		RelativeAngle_two += 360;
-	}
-	else if (RelativeAngle_two > 180)
-	{
-		RelativeAngle_two -= 360;
-	}
-	RelativeAngle_two = (float)((RelativeAngle_two * pi / 180.0f));
 
+	// //让小陀螺到底盘跟随切换同方向，不超功率
 
-
-	//让小陀螺到底盘跟随切换同方向，不超功率
-
-	// if(chassis_spin_flag == 1){
+	// // if(chassis_spin_flag == 1){
 	
-	// 	if(RelativeAngle_two <= 0){
-	// 		Chassis_t::Yaw_RelativeAngle = RelativeAngle_two;
-	// 		BigGimbal_ZeroMechanical = 1;
-	// 	}
-	// 	else{
+	// // 	if(RelativeAngle_two <= 0){
+	// // 		Chassis_t::Yaw_RelativeAngle = RelativeAngle_two;
+	// // 		BigGimbal_ZeroMechanical = 1;
+	// // 	}
+	// // 	else{
+	// // 		Chassis_t::Yaw_RelativeAngle = RelativeAngle;
+	// // 		BigGimbal_ZeroMechanical = 0;
+	// // 	}
+	// // }
+
+	// // else{
+	// 	switch (BigGimbal_ZeroMechanical)
+	// {
+	// case 0:
+	// 	if (abs(RelativeAngle) < 2.5f)
+	//        {
+	// 	    Chassis_t::Yaw_RelativeAngle = RelativeAngle;
+	// 	    BigGimbal_ZeroMechanical = 0;
+	// 	    }
+	// 	    else
+	// 	    {
+	// 		    Chassis_t::Yaw_RelativeAngle = RelativeAngle_two;
+	// 			BigGimbal_ZeroMechanical = 1;
+	// 	    }
+	// 	break;
+	// case 1:
+	// 	if (abs(RelativeAngle_two) < 2.5f)
+	//     {
+	// 	    Chassis_t::Yaw_RelativeAngle = RelativeAngle_two;
+	// 	    BigGimbal_ZeroMechanical = 1;
+	//     }
+	// 	else
+	// 	{
 	// 		Chassis_t::Yaw_RelativeAngle = RelativeAngle;
 	// 		BigGimbal_ZeroMechanical = 0;
 	// 	}
+	// 	break;
+	// default:
+	// 	break;
 	// }
-
-	// else{
-		switch (BigGimbal_ZeroMechanical)
-	{
-	case 0:
-		if (abs(RelativeAngle) < 2.5f)
-	       {
-		    Chassis_t::Yaw_RelativeAngle = RelativeAngle;
-		    BigGimbal_ZeroMechanical = 0;
-		    }
-		    else
-		    {
-			    Chassis_t::Yaw_RelativeAngle = RelativeAngle_two;
-				BigGimbal_ZeroMechanical = 1;
-		    }
-		break;
-	case 1:
-		if (abs(RelativeAngle_two) < 2.5f)
-	    {
-		    Chassis_t::Yaw_RelativeAngle = RelativeAngle_two;
-		    BigGimbal_ZeroMechanical = 1;
-	    }
-		else
-		{
-			Chassis_t::Yaw_RelativeAngle = RelativeAngle;
-			BigGimbal_ZeroMechanical = 0;
-		}
-		break;
-	default:
-		break;
-	}
 	// }
-    if(ChassisBehaviour == CHASSIS_SPIN){
-		if(Chassis_Target_Speed.Z > 800 && Chassis_Target_Speed.Z <= 1000){
-			Chassis_t::Yaw_RelativeAngle += Chassis_Target_Speed.Z * 0.00009f;  // 预测补偿
-		}
-		if(Chassis_Target_Speed.Z > 1000 && Chassis_Target_Speed.Z <= 1200){
-			Chassis_t::Yaw_RelativeAngle += Chassis_Target_Speed.Z * 0.0001f;  // 预测补偿
-		}
-		if(Chassis_Target_Speed.Z > 1200 && Chassis_Target_Speed.Z <= 1400){
-			Chassis_t::Yaw_RelativeAngle += Chassis_Target_Speed.Z * 0.00014f;  // 预测补偿
-		}
-		if(Chassis_Target_Speed.Z > 1400 && Chassis_Target_Speed.Z <= 1600){
-			Chassis_t::Yaw_RelativeAngle += Chassis_Target_Speed.Z * 0.00018f;  // 预测补偿
-		}
-		if(Chassis_Target_Speed.Z > 1600){
-			Chassis_t::Yaw_RelativeAngle += Chassis_Target_Speed.Z * 0.00022f;  // 预测补偿
-		}
-	}
+    // if(ChassisBehaviour == CHASSIS_SPIN){
+	// 	if(Chassis_Target_Speed.Z > 800 && Chassis_Target_Speed.Z <= 1000){
+	// 		Chassis_t::Yaw_RelativeAngle += Chassis_Target_Speed.Z * 0.00009f;  // 预测补偿
+	// 	}
+	// 	if(Chassis_Target_Speed.Z > 1000 && Chassis_Target_Speed.Z <= 1200){
+	// 		Chassis_t::Yaw_RelativeAngle += Chassis_Target_Speed.Z * 0.0001f;  // 预测补偿
+	// 	}
+	// 	if(Chassis_Target_Speed.Z > 1200 && Chassis_Target_Speed.Z <= 1400){
+	// 		Chassis_t::Yaw_RelativeAngle += Chassis_Target_Speed.Z * 0.00014f;  // 预测补偿
+	// 	}
+	// 	if(Chassis_Target_Speed.Z > 1400 && Chassis_Target_Speed.Z <= 1600){
+	// 		Chassis_t::Yaw_RelativeAngle += Chassis_Target_Speed.Z * 0.00018f;  // 预测补偿
+	// 	}
+	// 	if(Chassis_Target_Speed.Z > 1600){
+	// 		Chassis_t::Yaw_RelativeAngle += Chassis_Target_Speed.Z * 0.00022f;  // 预测补偿
+	// 	}
+	// }
 	
 }
 
@@ -499,25 +501,27 @@ void Chassis_t::Gimbal_SelfStabilizing(Control_type control_type){
 
         LPF_Gimbal_speed.Init(3,10);
 
-		LPF_Gimbal_speed.Generate(Gimbal_Motor[Gimbal_BigYawMotor]->GetSpeed());
+		LPF_Gimbal_speed.Generate(LK_9025->GetSpeed());
 		// if(Chassis.Gimbal_Target_Speed.Z == 0){
-			Gimbal_Motor_PID[Gimbal_BigYawAngle].GenerateRing(imu->yaw,Gimbal_Target_Angle[Imu],360);
+			
 		// }
 		// else{
 		// 	SetGimbalTargetAngle(Imu,Position_Control,imu->yaw);
 		// }
+        Gimbal_Motor_PID[Gimbal_BigYawAngle].GenerateRing(imu->yaw,Gimbal_Target_Angle[Imu],360);
+        Gimbal_Motor_PID[Gimbal_BigYawSpeed].Generate(LPF_Gimbal_speed.GetOutput(),-Gimbal_Motor_PID[Gimbal_BigYawAngle].GetOutput() + Chassis.Gimbal_Target_Speed.Z );
+	    LK_9025->SetCurrent((int16_t)Gimbal_Motor_PID[Gimbal_BigYawSpeed].GetOutput());
 
-        Gimbal_Motor_PID[Gimbal_BigYawSpeed].Generate(LPF_Gimbal_speed.GetOutput(),Gimbal_Motor_PID[Gimbal_BigYawAngle].GetOutput() - Chassis.Gimbal_Target_Speed.Z );
-	    Gimbal_Motor[Gimbal_BigYawMotor]->SetCurrent(Gimbal_Motor_PID[Gimbal_BigYawSpeed].GetOutput());
+
 
 		break;
 	
 	case Machine:
-	    Gimbal_Zeropoint_Calibration[Gimbal_BigYawAngle].GenerateRing(Gimbal_Motor[Gimbal_BigYawMotor]->GetAngle(),Gimbal_Target_Angle[Machine],8191);
-	    Gimbal_Zeropoint_Calibration[Gimbal_BigYawSpeed].Generate(Gimbal_Motor[Gimbal_BigYawMotor]->GetSpeed(), Gimbal_Zeropoint_Calibration[Gimbal_BigYawAngle].GetOutput() - Chassis.Gimbal_Target_Speed.Z);
+	    Gimbal_Zeropoint_Calibration[Gimbal_BigYawAngle].GenerateRing(LK_9025->GetAngle(),Gimbal_Target_Angle[Machine],8191);
+	    Gimbal_Zeropoint_Calibration[Gimbal_BigYawSpeed].Generate(LK_9025->GetSpeed(),Gimbal_Zeropoint_Calibration[Gimbal_BigYawAngle].GetOutput() - Chassis.Gimbal_Target_Speed.Z);
 
-		Gimbal_Motor[Gimbal_BigYawMotor]->SetCurrent(Gimbal_Zeropoint_Calibration[Gimbal_BigYawSpeed].GetOutput());
-		SetGimbalTargetAngle(Machine,Position_Control,Gimbal_Motor[Gimbal_BigYawMotor]->GetAngle());
+		LK_9025->SetCurrent(Gimbal_Zeropoint_Calibration[Gimbal_BigYawSpeed].GetOutput());
+		SetGimbalTargetAngle(Machine,Position_Control,LK_9025->GetAngle());
 		break;
 	}
     
@@ -528,10 +532,10 @@ void Chassis_t::Gimbal_SelfStabilizing(Control_type control_type){
  * 
  */
 void Chassis_t::Chassis_Gravity_feed(void){
-	imu_t* imu = imuPoint();
-
-	Chassis_Target_Speed.Y += imu->pitch * Chassis_pitch_kf;
-	Chassis_Target_Speed.X += imu->roll  * Chassis_roll_kf;
+	IMU_t* IMU = BSP_IMU_Point();
+     
+    Chassis_Target_Speed.Y += - (IMU->Angle_Y + 0.9f) * Chassis_pitch_kf;
+	Chassis_Target_Speed.X += - (IMU->Angle_X - 1.5f)  * Chassis_roll_kf;
 }
 
 
@@ -588,14 +592,14 @@ void  Chassis_t::Calculate_MotorPID(void){
 	}
 
 
-	Chassis_Power_Calculation();
+	// Chassis_Power_Calculation();
 
-	*((uint32_t *)&Vofabuf[5]) = 0x7F800000U;
-	Vofabuf[0] = 100;
-	Vofabuf[1] = 80;
-	Vofabuf[2] = Chassis_Future_Power;
-	Vofabuf[3] = Chassis_CurrentPower;
-	BSP_UART_SendMessage(2,(uint8_t*)Vofabuf, sizeof(Vofabuf));
+	// *((uint32_t *)&Vofabuf[5]) = 0x7F800000U;
+	// Vofabuf[0] = 100;
+	// Vofabuf[1] = 80;
+	// Vofabuf[2] = Chassis_Future_Power;
+	// Vofabuf[3] = Chassis_CurrentPower;
+	// BSP_UART_SendMessage(2,(uint8_t*)Vofabuf, sizeof(Vofabuf));
 
 	// 将 PID 计算结果给电机
 	Chassis_Motor[LU]->SetCurrent(Chasssis_Motor_PID[LU].GetOutput() * PowerLimit);  
@@ -624,8 +628,7 @@ void Chassis_t::Generate(void) {
 		    Chassis_Motor[RU]->SetCurrent(0);
 		    Chassis_Motor[LD]->SetCurrent(0);
 		    Chassis_Motor[RD]->SetCurrent(0);
-			Gimbal_Motor[Gimbal_BigYawAngle]->SetCurrent(0);
-			Gimbal_Motor[Gimbal_BigYawSpeed]->SetCurrent(0);
+			LK_9025->SetCurrent(0);
 			ChassisBehaviour_Last = CHASSIS_ZERO_FORCE;
 			return;                  // 无力的关键
 			        
@@ -664,7 +667,7 @@ void Chassis_t::Generate(void) {
 
 
 
-			Chassis_Target_Speed.Z = -Chassis_Follow_PID.GenerateRing(Yaw_RelativeAngle, 0, 2*pi);  // 跟随
+			Chassis_Target_Speed.Z = Chassis_Follow_PID.GenerateRing(Yaw_RelativeAngle, 0, 2*pi);  // 跟随
 			// FK_ChassisSpeed();
 			CalcSpeedWithRelativeAngle();
 				
@@ -676,7 +679,7 @@ void Chassis_t::Generate(void) {
 		    Chassis_Target_Speed.Z = Smallgyro_speed + DR16_Chassis_Smallgyro_speed;
 			// FK_ChassisSpeed();
 			CalcSpeedWithRelativeAngle();
-			;
+		
 			ChassisBehaviour_Last = CHASSIS_SPIN;
 			break;
 	}
@@ -693,12 +696,13 @@ void Chassis_t::Generate(void) {
  */
 void ChassisTask(void* argument) {
     
-
+LK_Motor_t* LK_9025 = LK_Motor_Point();
 	while (1) {
 		if(Chassis.ChassisBehaviour == CHASSIS_SPIN || Chassis.ChassisBehaviour == CHASSIS_FOLLOW_GIMBAL || Chassis.ChassisBehaviour == CHASSIS_NO_FOLLOW){
 			Chassis.Gimbal_SelfStabilizing(Imu);
 		}
 
+		
 		Chassis.UpdataRelativeAttitude_Mechanical();
 		Chassis.Generate();
 		osDelay(6);

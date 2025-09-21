@@ -44,11 +44,11 @@
 
 #define Kf        0.0007f                       //底盘相对角度前馈可以使小陀螺模式时做到X，Y线速度方向不变
 #define Smallgyro_speed     1200.0f             //小陀螺转速1800（满功率）
-#define BigGimbal_ZeroMechanicalAngle  8190      //机械零点(0~8191)
-#define BigGimbal_ZeroMechanicalAngle_two  4095      //机械零点(0~8191)
+#define BigGimbal_ZeroMechanicalAngle  18034      //机械零点(0~8191)
+#define BigGimbal_ZeroMechanicalAngle_two  13547      //机械零点(0~8191)
 
-#define Chassis_pitch_kf   0.01f      // pitch角度前馈系数
-#define Chassis_roll_kf   0.01f         // roll角度前馈系数
+#define Chassis_pitch_kf   1.5f      // pitch角度前馈系数   yaw1.5f
+#define Chassis_roll_kf    1.5f         // roll角度前馈系数    yaw1.5f
 
 #define Scaler_Chassis 400.0f  //DR16遥控器灵敏度
 

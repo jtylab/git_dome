@@ -44,6 +44,7 @@ void C_Board_CAN_Callback(uint32_t ID, uint8_t* Data){
 void Chassis_C_CANTask(void *argument){
     Chassis_t* Chassis = ChassisPoint();
     imu_t* imu = imuPoint();
+    LK_Motor_t* LK_9025 = LK_Motor_Point();
 
     BSP_CAN_SetRxCallbackFunc(C_Board_CAN_Port,C_Board_CAN_Callback);
     osThreadFlagsSet(Chassis_C_CANThreadID, C_Board_CAN_ThreadFlag1);   
@@ -54,12 +55,10 @@ void Chassis_C_CANTask(void *argument){
         // uint32_t Chassis_C_CANFlags = osThreadFlagsWait(0x01,osFlagsWaitAny,osWaitForever);
 
         Chassis->SetBehaviour((ChassisBehaviour_e)Chassis_CAN_RxData.ChassisBehaviour);
-        Chassis->SetChassisTargetSpeed(Chassis_CAN_RxData.Gimbal_Target_Speed_X, Chassis_CAN_RxData.Gimbal_Target_Speed_Y, 0);
+        Chassis->SetChassisTargetSpeed(Chassis_CAN_RxData.Gimbal_Target_Speed_X, -Chassis_CAN_RxData.Gimbal_Target_Speed_Y, 0);
         Chassis->SetGimbalTargetAngle(Imu,Speed_Control,Chassis_CAN_RxData.Gimbal_Target_Speed_Z);
         Chassis->SetSmallgyroSpeed(Chassis_CAN_RxData.Chassis_Smallgyro_speed);
-
         // Chassis->SetGimbalTargetSpeed(Chassis_CAN_RxData.Gimbal_Target_Speed_Z);
-        
         
         
         Chassis_CAN_TxData.Yaw_RelativeAngle =  Chassis->Yaw_RelativeAngle;

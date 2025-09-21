@@ -11,6 +11,8 @@
  */
 #include "MainThread.h"
 uint16_t time = 0;
+
+
 // float Vofabuf[5]={0};
 
 
@@ -20,7 +22,8 @@ RM_Motor_t ChassisMotor_RU(1, RM_Motor_t::M3508, 2);
 RM_Motor_t ChassisMotor_LD(1, RM_Motor_t::M3508, 3);
 RM_Motor_t ChassisMotor_RD(1, RM_Motor_t::M3508, 4);
 
-RM_Motor_t GimbalMotor_BigYaw(1, RM_Motor_t::GM6020,2);
+
+// RM_Motor_t GimbalMotor_BigYaw(1, RM_Motor_t::GM6020,2);
 RM_Motor_t GimbalMotor_smallYaw(1, RM_Motor_t::GM6020,3);
 
 
@@ -35,12 +38,14 @@ void MainTask(void *argument) {
 	DR16_t* DR16 = DR16_Point();
 	imu_t*  imu = imuPoint();
 	PID_Data_t* PID_Data = GetPID_DataPoint();
+	LK_Motor_t* LK_9025 = LK_Motor_Point();
 // 	Booster_t *Booster = BoosterPoint();
 
 	Chassis->Chassis_Init(&ChassisMotor_LU, &ChassisMotor_RU, &ChassisMotor_LD, &ChassisMotor_RD);
-	Chassis->Gimbal_Init(&GimbalMotor_BigYaw,&GimbalMotor_smallYaw);
+	Chassis->Gimbal_Init(LK_9025,&GimbalMotor_smallYaw);
 
-    // *((uint32_t *)&Vofabuf[4]) = 0x7F800000U;
+
+    
 	osDelay(3500);
 	vofa_usart_Init();
 
@@ -49,15 +54,19 @@ void MainTask(void *argument) {
 	LPF_Gimbal_speed.Init(3,10);
 	
 	while (1) {
-		// LPF_Gimbal_speed.Generate(Chassis->Gimbal_Motor[Gimbal_BigYawMotor]->GetSpeed());
+		// *((uint32_t *)&Vofabuf[4]) = 0x7F800000U;
+		// LPF_Gimbal_speed.Generate(LK_9025->GetSpeed());
 
 		// Vofabuf[0] = Chassis->Chassis_CurrentPower;
 		// Vofabuf[1] = 100.0f;
 		// Vofabuf[2] = Chassis->Chassis_Future_Power;
 
-		// Vofabuf[0] = Chassis->Gimbal_Target_Angle[Imu];
-		// Vofabuf[1] = LPF_imu.GetOutput();
-		// Vofabuf[2] = imu->yaw;
+		// Vofabuf[0] = Chassis->Gimbal_Target_Speed.Z;
+		// Vofabuf[1] = LK_9025->GetSpeed();
+		// Vofabuf[2] = LPF_Gimbal_speed.GetOutput();
+		
+        // Vofabuf[0] = Chassis->Gimbal_Target_Angle[Imu];
+		// Vofabuf[1] = imu->yaw;
 		
 
 
@@ -70,30 +79,34 @@ void MainTask(void *argument) {
 
 
 
-		// if(time == 1500){
+		// if(time == 250){
 		// 	Chassis->SetGimbalTargetAngle(Imu,Position_Control,30);
 		// }
-		// if(time == 3000){
+		// if(time == 750){
 		// 	Chassis->SetGimbalTargetAngle(Imu,Position_Control,90);
 		// }
-		// if(time == 4500){
+		// if(time == 1000){
 		// 	Chassis->SetGimbalTargetAngle(Imu,Position_Control,150);
 		// 	time = 0;
 		// }
 
-		// if(time == 500){
+		// if(time == 250){
 		// 	Chassis->SetGimbalTargetSpeed(0);
 		// }
-		// if(time == 1500){
-		// 	Chassis->SetGimbalTargetSpeed(30);
+		// if(time == 750){
+		// 	Chassis->SetGimbalTargetSpeed(500);
 		// }
-		// if(time == 2000){
-		// 	Chassis->SetGimbalTargetSpeed(60);
+		// if(time == 1000){
+		// 	Chassis->SetGimbalTargetSpeed(800);
+		// }
+		// if(time == 1250){
+		// 	Chassis->SetGimbalTargetSpeed(1200);
 		// 	time = 0;
 		// }
 
-		// time++;
-			
+
+		time++;
+
 		 
 		
 		 osDelay(10);

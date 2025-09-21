@@ -26,6 +26,7 @@
 
 #include "ChassisThread.h"
 #include "Robodefine.h"
+#include "LK_Motor.h"
 
 #ifdef __cplusplus
 extern "C" {
