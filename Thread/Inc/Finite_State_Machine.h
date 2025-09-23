@@ -19,7 +19,7 @@
 #include "cmsis_os.h"
 #include "task.h"
 #include "BSP_UART.h"
-
+#include "ChassisThread.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -27,7 +27,7 @@ extern "C" {
 
 
 
-
+void Finite_State_Machine_Init(void);
 
 
 
